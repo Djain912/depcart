@@ -8,6 +8,7 @@ import type { Registry } from './registries/types';
 import { searchRegistry, verifySuggestions } from './search';
 import { isValidName } from './validation';
 
+const DEVELOPER_URL = 'https://linkedin.com/in/darshanjain912';
 const TIMEOUT_MS = 15_000;
 const AI_TIMEOUT_MS = 45_000;
 const AI_MIN_QUERY = 3;
@@ -22,7 +23,8 @@ type FromWebview =
   | { type: 'setTool'; registry: string; tool: string }
   | { type: 'copy'; registry: string }
   | { type: 'run'; registry: string }
-  | { type: 'open'; registry: string; name: string };
+  | { type: 'open'; registry: string; name: string }
+  | { type: 'openDeveloper' };
 
 function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
@@ -97,6 +99,9 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
         }
         return;
       }
+      case 'openDeveloper':
+        await vscode.env.openExternal(vscode.Uri.parse(DEVELOPER_URL));
+        return;
     }
   }
 
@@ -294,6 +299,8 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
     <h3>Install</h3>
     <div id="commands"></div>
   </section>
+
+  <footer class="credit">Developed by <button id="developer" class="credit-link" title="Open Djain912's LinkedIn profile">Djain912</button></footer>
 
   <script nonce="${nonce}" src="${media('registryIcons.js')}"></script>
   <script nonce="${nonce}" src="${media('main.js')}"></script>

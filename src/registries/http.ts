@@ -1,5 +1,5 @@
 // Registries ask API clients to identify themselves with a way to reach the maintainer (crates.io requires it).
-const USER_AGENT = 'depcart-vscode (+https://github.com/djain912/depcart)';
+const USER_AGENT = 'depcart-vscode (+https://github.com/Djain912/depcart)';
 
 export class HttpError extends Error {
   constructor(readonly status: number, url: string) {

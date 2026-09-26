@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 (2026-09-26)
+
+- A small "Developed by Djain912" bar at the bottom of the sidebar links to the developer's LinkedIn profile.
+- Developer details in the extension manifest and README.
+- Repository links use the correct `Djain912/depcart` capitalisation.
+
 ## 1.0.0 (2026-09-26)
 
 First release.

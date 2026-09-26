@@ -1,7 +1,8 @@
 /* Everything uses VS Code theme variables so the view matches light, dark and high-contrast themes. */
 
 body {
-  padding: 0 12px 16px;
+  /* Bottom padding leaves room for the fixed credit bar. */
+  padding: 0 12px 34px;
   color: var(--vscode-foreground);
   font-family: var(--vscode-font-family);
   font-size: var(--vscode-font-size);
@@ -490,6 +491,30 @@ pre.snippet {
   margin-top: 4px;
   color: var(--vscode-descriptionForeground);
   font-size: 0.85em;
+}
+
+/* ---------- Developer credit ---------- */
+
+.credit {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 12px;
+  border-top: 1px solid var(--vscode-widget-border, var(--vscode-panel-border, transparent));
+  background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  color: var(--vscode-descriptionForeground);
+  font-size: 11px;
+  text-align: right;
+}
+
+.credit-link {
+  color: var(--vscode-textLink-foreground);
+}
+
+.credit-link:hover {
+  color: var(--vscode-textLink-activeForeground, var(--vscode-textLink-foreground));
+  text-decoration: underline;
 }
 
 /* ---------- Registry logos ---------- */

@@ -487,6 +487,7 @@
   queryInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') runSearch();
   });
+  el('developer').addEventListener('click', () => vscode.postMessage({ type: 'openDeveloper' }));
   clearBtn.addEventListener('click', () => {
     selected = [];
     refresh();

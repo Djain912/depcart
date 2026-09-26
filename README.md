@@ -9,19 +9,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/djain912/depcart/releases/latest"><img src="https://img.shields.io/github/v/release/djain912/depcart?label=release" alt="Latest release"></a>
-  <a href="https://github.com/djain912/depcart/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/djain912/depcart/ci.yml?branch=main&label=tests" alt="Tests"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/djain912/depcart" alt="MIT license"></a>
+  <a href="https://github.com/Djain912/depcart/releases/latest"><img src="https://img.shields.io/github/v/release/Djain912/depcart?label=release" alt="Latest release"></a>
+  <a href="https://github.com/Djain912/depcart/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Djain912/depcart/ci.yml?branch=main&label=tests" alt="Tests"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Djain912/depcart" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/VS%20Code-1.90%2B-007ACC" alt="VS Code 1.90 or newer">
+  <a href="https://linkedin.com/in/darshanjain912"><img src="https://img.shields.io/badge/LinkedIn-Djain912-0A66C2" alt="Djain912 on LinkedIn"></a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/djain912/depcart/releases/download/v1.0.0/depcart-launch.mp4">
-    <img src="images/launch-poster.jpg" width="720" alt="DepCart launch video: click to watch">
-  </a>
-  <br>
-  <sub>Watch the launch video (about 20 seconds)</sub>
-</p>
+https://github.com/user-attachments/assets/41a385e9-c85a-4d75-a9ed-5b72cbe4eca4
 
 ---
 
@@ -92,7 +87,7 @@ DepCart has no servers of its own and collects no telemetry.
 - **AI suggestions** (only when the registries find nothing, or when you click "Ask AI") send your search text to the language model you use in VS Code, such as GitHub Copilot. VS Code asks for your permission the first time. Turn it off with the `depcart.aiFallback` setting.
 - **Python fallback search** may download PyPI's official list of project names once (about 10 MB) and cache it for 7 days in VS Code's extension storage.
 - **Your project files never leave your machine.** DepCart only reads the names and a few config files at the top of your workspace folder to detect languages and tools.
-- Requests identify themselves as `depcart-vscode (+https://github.com/djain912/depcart)`, as the registries' usage policies ask.
+- Requests identify themselves as `depcart-vscode (+https://github.com/Djain912/depcart)`, as the registries' usage policies ask.
 
 ## Settings
 
@@ -115,7 +110,7 @@ DepCart has no servers of its own and collects no telemetry.
 - Maven, Gradle and Mix have no "add dependency" command, so those languages get a snippet to paste into your build file.
 - `cargo add serde@1.0.200` uses Cargo's default (compatible-version) requirement, so Cargo may pick a newer 1.0.x.
 
-Ideas and bug reports are welcome in [Issues](https://github.com/djain912/depcart/issues).
+Ideas and bug reports are welcome in [Issues](https://github.com/Djain912/depcart/issues).
 
 ## Development
 
@@ -127,6 +122,10 @@ npm run package     # builds the .vsix
 ```
 
 Press **F5** in VS Code to launch an Extension Development Host with DepCart loaded.
+
+## Developer
+
+DepCart is built by **Djain912**: [LinkedIn](https://linkedin.com/in/darshanjain912) · [GitHub](https://github.com/Djain912). You'll also find a small "Developed by" link at the bottom of the DepCart sidebar.
 
 ## Credits
 

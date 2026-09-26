@@ -2,11 +2,11 @@
   "name": "depcart",
   "displayName": "DepCart: Package Search & Install",
   "description": "Search npm, PyPI, Go, crates.io, Maven, NuGet, RubyGems, Packagist, pub.dev and Hex from one sidebar, pick exact versions, and get one ready-to-run install command per language for the tool your project uses.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "djain912",
   "author": {
     "name": "Djain912",
-    "url": "https://github.com/djain912"
+    "url": "https://linkedin.com/in/darshanjain912"
   },
   "license": "MIT",
   "icon": "images/icon.png",
@@ -14,13 +14,13 @@
     "color": "#1E1B4B",
     "theme": "dark"
   },
-  "homepage": "https://github.com/djain912/depcart#readme",
+  "homepage": "https://github.com/Djain912/depcart#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/djain912/depcart.git"
+    "url": "https://github.com/Djain912/depcart.git"
   },
   "bugs": {
-    "url": "https://github.com/djain912/depcart/issues"
+    "url": "https://github.com/Djain912/depcart/issues"
   },
   "pricing": "Free",
   "engines": {
