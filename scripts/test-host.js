@@ -53,7 +53,19 @@ async function main() {
   const report = path.join(workspace, '..', `${path.basename(workspace)}-report.json`);
   const vscodeExecutablePath = installedVSCode();
   console.log(`VS Code: ${vscodeExecutablePath ?? '(none found: downloading a test copy)'}`);
-  console.log(`Test project: ${workspace}`);
+  console.log(`Test project: ${workspace} (throwaway, deleted when the run ends)`);
+  console.log(
+    [
+      '',
+      'About this run:',
+      '- A VS Code window opens under automated test control. VS Code blocks all dialogs in test windows,',
+      '  including "Do you want Code to open the external website?", so links clicked there do nothing.',
+      '  To try DepCart by hand, press F5 in this project or install the .vsix instead.',
+      '- One check clicks "Run in terminal", which really runs `npm install zod` in the throwaway test',
+      '  project above to prove the command works end to end. Nothing is installed in your own projects.',
+      '',
+    ].join('\n'),
+  );
 
   let exitCode = 0;
   try {
@@ -76,13 +88,21 @@ async function main() {
       console.log(`${c.ok ? 'PASS' : 'FAIL'}  ${c.name}${c.ms !== undefined ? ` (${c.ms} ms)` : ''}${c.detail ? `\n      ${c.detail}` : ''}`);
     }
     const failed = checks.filter((c) => !c.ok).length;
-    console.log(`\n${checks.length - failed}/${checks.length} checks passed. Report: ${report}`);
+    console.log(`\n${checks.length - failed}/${checks.length} checks passed.`);
     if (failed) {
       exitCode = 1;
     }
   } else {
     exitCode = 1;
     console.error('No report was written: the extension host did not run the tests.');
+  }
+  // VS Code has exited by now, so the throwaway project (and the zod it installed) can go.
+  try {
+    fs.rmSync(workspace, { recursive: true, force: true, maxRetries: 5, retryDelay: 500 });
+    fs.rmSync(report, { force: true });
+    console.log('Removed the throwaway test project.');
+  } catch (e) {
+    console.log(`Could not fully remove ${workspace} (${e.code ?? e.message}); it is safe to delete by hand.`);
   }
   process.exit(exitCode);
 }

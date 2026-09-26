@@ -57,7 +57,20 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [vscode.Uri.joinPath(this.extensionUri, 'media')],
     };
     view.webview.html = this.html(view.webview);
-    view.webview.onDidReceiveMessage((msg: FromWebview) => this.onMessage(msg));
+    view.webview.onDidReceiveMessage((msg: FromWebview) =>
+      this.onMessage(msg).catch((e) => console.error('DepCart: failed to handle a view message', e)),
+    );
+  }
+
+  /**
+   * VS Code asks "Do you want Code to open the external website?" before opening. Cancelling that
+   * resolves false, and windows under automated test refuse the dialog and reject: neither is an error.
+   */
+  private async openLink(url: string): Promise<void> {
+    await vscode.env.openExternal(vscode.Uri.parse(url)).then(
+      () => undefined,
+      () => undefined,
+    );
   }
 
   private async onMessage(msg: FromWebview): Promise<void> {
@@ -95,13 +108,12 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
         // The URL is always built here from a validated name, never taken from the webview.
         const registry = registryFor(msg.registry);
         if (registry && isValidName(registry, msg.name)) {
-          await vscode.env.openExternal(vscode.Uri.parse(registry.pageUrl(msg.name)));
+          await this.openLink(registry.pageUrl(msg.name));
         }
         return;
       }
       case 'openDeveloper':
-        await vscode.env.openExternal(vscode.Uri.parse(DEVELOPER_URL));
-        return;
+        return this.openLink(DEVELOPER_URL);
     }
   }
 
@@ -300,7 +312,7 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
     <div id="commands"></div>
   </section>
 
-  <footer class="credit">Developed by <button id="developer" class="credit-link" title="Open Djain912's LinkedIn profile">Djain912</button></footer>
+  <footer class="credit">Developed by <button id="developer" class="credit-link" title="Open Darshan Jain's LinkedIn profile">Darshan Jain</button></footer>
 
   <script nonce="${nonce}" src="${media('registryIcons.js')}"></script>
   <script nonce="${nonce}" src="${media('main.js')}"></script>

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 (2026-09-26)
+
+- The credit bar reads "Developed by Darshan Jain" and still links to the LinkedIn profile.
+- Opening a link no longer leaves an unhandled error when VS Code's "open external website?" prompt is cancelled or blocked.
+- `npm run test:host` explains what the test window is (VS Code blocks dialogs there, so links do nothing) and deletes its throwaway test project, including the package it installs, when the run ends.
+
 ## 1.0.1 (2026-09-26)
 
 - A small "Developed by Djain912" bar at the bottom of the sidebar links to the developer's LinkedIn profile.

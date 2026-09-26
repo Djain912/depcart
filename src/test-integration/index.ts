@@ -246,7 +246,7 @@ export async function run(): Promise<void> {
     }
   });
 
-  await check('Run in terminal really installs the package (npm, in the test project)', async () => {
+  await check('Run in terminal really installs the package (npm, in the throwaway test project)', async () => {
     const version = latest.npm;
     assert(version, 'no npm version to install');
     const from = host.mark();
