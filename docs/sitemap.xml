@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://djain912.github.io/depcart/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image><image:loc>https://djain912.github.io/depcart/assets/og-image.jpg</image:loc></image:image>
+    <image:image><image:loc>https://djain912.github.io/depcart/assets/screenshot-search.png</image:loc></image:image>
+    <image:image><image:loc>https://djain912.github.io/depcart/assets/screenshot-install.png</image:loc></image:image>
+    <video:video>
+      <video:thumbnail_loc>https://djain912.github.io/depcart/assets/poster.jpg</video:thumbnail_loc>
+      <video:title>DepCart in 22 seconds</video:title>
+      <video:description>Searching npm, PyPI and Go packages in the DepCart VS Code sidebar and getting one install command per language.</video:description>
+      <video:content_loc>https://djain912.github.io/depcart/assets/depcart-launch.mp4</video:content_loc>
+      <video:duration>22</video:duration>
+    </video:video>
+  </url>
+</urlset>

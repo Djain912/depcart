@@ -59,18 +59,15 @@
     });
   }
 
-  // ---------- language cards ----------
-  const langs = $('#langs');
-  ORDER.forEach((id, i) => {
-    const card = el('article', 'lang reveal');
+  // ---------- language cards (content is static HTML; add logos and colours) ----------
+  document.querySelectorAll('.lang[data-reg]').forEach((card, i) => {
+    const id = card.dataset.reg;
+    if (!REG[id]) return;
     card.style.setProperty('--lang-color', REG[id].color);
     card.style.setProperty('--delay', (i % 5) * 0.06 + 's');
-    card.append(icon(id), el('h3', '', REG[id].lang), el('small', '', REG[id].label));
-    const list = el('ul');
-    REG[id].tools.forEach((t) => list.append(el('li', '', t)));
-    card.append(list);
-    langs.append(card);
+    card.prepend(icon(id));
   });
+  document.querySelectorAll('.faq .qa').forEach((q, i) => q.style.setProperty('--delay', i * 0.05 + 's'));
 
   // ---------- scroll reveal + stat count-up ----------
   document.querySelectorAll('.cards .card').forEach((c, i) => c.style.setProperty('--delay', (i % 3) * 0.08 + 's'));
@@ -297,10 +294,8 @@
       const vsix = (release.assets || []).find((a) => a.name.endsWith('.vsix'));
       if (!vsix) return;
       document.querySelectorAll('.vsix-link').forEach((a) => (a.href = vsix.browser_download_url));
-      document.querySelectorAll('.vsix-version').forEach((s) => (s.textContent = release.tag_name));
-      const kb = Math.round(vsix.size / 1024);
-      $('#release-line').textContent = 'DepCart ' + release.tag_name + ' · ' + vsix.name + ' · ' + kb + ' KB';
-      $('#install-cmd').textContent = 'code --install-extension ' + vsix.name;
+      document.querySelectorAll('.vsix-version').forEach((s) => (s.textContent = '.vsix ' + release.tag_name));
+      $('#release-line').textContent = 'Free on the VS Code Marketplace · latest release ' + release.tag_name;
     })
     .catch(() => {
       // Links already point at the releases page, which always works.

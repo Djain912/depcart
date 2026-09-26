@@ -9,6 +9,8 @@
 </p>
 
 <p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><img src="https://img.shields.io/visual-studio-marketplace/v/djain912.depcart?label=VS%20Code%20Marketplace&color=007ACC" alt="VS Code Marketplace version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><img src="https://img.shields.io/visual-studio-marketplace/i/djain912.depcart?label=installs" alt="Marketplace installs"></a>
   <a href="https://github.com/Djain912/depcart/releases/latest"><img src="https://img.shields.io/github/v/release/Djain912/depcart?label=release" alt="Latest release"></a>
   <a href="https://github.com/Djain912/depcart/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Djain912/depcart/ci.yml?branch=main&label=tests" alt="Tests"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Djain912/depcart" alt="MIT license"></a>
