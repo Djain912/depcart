@@ -1,0 +1,23 @@
+name: Host tests
+
+# Runs the extension inside a real VS Code against the live registries. It also runs weekly,
+# so a registry that changes its API or goes down is noticed even when no code changes.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  host:
+    name: Real VS Code, live registries (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: xvfb-run -a npm run test:host

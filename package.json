@@ -1,0 +1,111 @@
+{
+  "name": "depcart",
+  "displayName": "DepCart: Package Search & Install",
+  "description": "Search npm, PyPI, Go, crates.io, Maven, NuGet, RubyGems, Packagist, pub.dev and Hex from one sidebar, pick exact versions, and get one ready-to-run install command per language for the tool your project uses.",
+  "version": "1.0.0",
+  "publisher": "djain912",
+  "author": {
+    "name": "Djain912",
+    "url": "https://github.com/djain912"
+  },
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1E1B4B",
+    "theme": "dark"
+  },
+  "homepage": "https://github.com/djain912/depcart#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djain912/depcart.git"
+  },
+  "bugs": {
+    "url": "https://github.com/djain912/depcart/issues"
+  },
+  "pricing": "Free",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "npm",
+    "pypi",
+    "pip",
+    "go modules",
+    "cargo",
+    "crates.io",
+    "maven",
+    "gradle",
+    "nuget",
+    "rubygems",
+    "composer",
+    "packagist",
+    "pub.dev",
+    "flutter",
+    "hex",
+    "dependencies",
+    "package manager",
+    "pnpm",
+    "yarn",
+    "uv"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "DepCart reads project files to detect your package manager and can run install commands in the workspace, so it only runs in trusted folders."
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "DepCart needs a local folder to detect lockfiles and run install commands."
+    }
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "depcart",
+          "title": "DepCart",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "depcart": [
+        {
+          "type": "webview",
+          "id": "depcart.picker",
+          "name": "Packages"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "DepCart",
+      "properties": {
+        "depcart.aiFallback": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "When registry search finds nothing, ask VS Code's language model (for example GitHub Copilot) to suggest package names. Suggestions are only shown if they exist on the registry, and are marked **AI**."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node --test \"out/test/*.test.js\"",
+    "test:host": "npm run compile && node scripts/test-host.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/vscode": "~1.90.0",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "typescript": "^7.0.2"
+  }
+}

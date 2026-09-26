@@ -1,0 +1,15 @@
+.github/**
+.vscode/**
+.vscode-test/**
+brag-output*/**
+images/screenshot-*.png
+images/launch-poster.jpg
+images/icon.svg
+scripts/**
+src/**
+out/test/**
+out/test-integration/**
+**/*.map
+**/*.vsix
+tsconfig.json
+.gitignore
