@@ -71,7 +71,6 @@
 
   // ---------- scroll reveal + stat count-up ----------
   document.querySelectorAll('.cards .card').forEach((c, i) => c.style.setProperty('--delay', (i % 3) * 0.08 + 's'));
-  document.querySelectorAll('.shots .shot').forEach((c, i) => c.style.setProperty('--delay', i * 0.1 + 's'));
   function countUp(node) {
     const target = Number(node.dataset.count);
     if (reducedMotion || target === 0) {
@@ -300,6 +299,66 @@
     .catch(() => {
       // Links already point at the releases page, which always works.
     });
+
+  // ---------- screenshot slider ----------
+  const shotsRoot = $('#shots');
+  if (shotsRoot) {
+    const shots = [...shotsRoot.querySelectorAll('.shot')];
+    const dots = [...shotsRoot.querySelectorAll('.shots-dots button')];
+    const stage = shotsRoot.querySelector('.shots-stage');
+    let active = 1;
+    let timer = null;
+    let paused = false;
+    const show = (i) => {
+      active = (i + shots.length) % shots.length;
+      shots.forEach((s, j) => {
+        let pos = j - active;
+        if (pos > 1) pos -= shots.length;
+        if (pos < -1) pos += shots.length;
+        s.dataset.pos = String(pos);
+      });
+      dots.forEach((d, j) => d.setAttribute('aria-selected', String(j === active)));
+    };
+    const stop = () => {
+      clearInterval(timer);
+      timer = null;
+    };
+    const go = (i) => {
+      stop();
+      show(i);
+    };
+    let startX = null;
+    let swiped = false;
+    stage.addEventListener('pointerdown', (e) => {
+      startX = e.clientX;
+      swiped = false;
+    });
+    stage.addEventListener('pointerup', (e) => {
+      if (startX === null) return;
+      const dx = e.clientX - startX;
+      startX = null;
+      if (Math.abs(dx) > 40) {
+        swiped = true;
+        go(active + (dx < 0 ? 1 : -1));
+      }
+    });
+    stage.addEventListener('pointercancel', () => (startX = null));
+    shots.forEach((s, j) => s.addEventListener('click', () => !swiped && go(j)));
+    shotsRoot.querySelectorAll('.shots-arrow').forEach((b) => b.addEventListener('click', () => go(active + Number(b.dataset.dir))));
+    dots.forEach((d, j) => d.addEventListener('click', () => go(j)));
+    shotsRoot.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') go(active - 1);
+      if (e.key === 'ArrowRight') go(active + 1);
+    });
+    shotsRoot.addEventListener('pointerenter', () => (paused = true));
+    shotsRoot.addEventListener('pointerleave', () => (paused = false));
+    show(active);
+    if (!reducedMotion) {
+      timer = setInterval(() => {
+        if (!paused && !document.hidden) show(active + 1);
+      }, 4500);
+    }
+  }
 
   // ---------- copy buttons ----------
   document.querySelectorAll('.copy').forEach((btn) => {

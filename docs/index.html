@@ -176,10 +176,17 @@
       <div class="video-frame reveal">
         <video controls preload="metadata" playsinline poster="assets/poster.jpg" src="assets/depcart-launch.mp4"></video>
       </div>
-      <div class="shots">
-        <figure class="shot reveal"><img src="assets/screenshot-search.png" alt="DepCart VS Code sidebar: search results grouped by language" width="688" height="1476" loading="lazy"><figcaption>Grouped results</figcaption></figure>
-        <figure class="shot reveal"><img src="assets/screenshot-all-languages.png" alt="DepCart VS Code sidebar: searching all ten registries at once" width="688" height="1476" loading="lazy"><figcaption>All ten registries</figcaption></figure>
-        <figure class="shot reveal"><img src="assets/screenshot-install.png" alt="DepCart VS Code sidebar: one install command per language" width="688" height="1476" loading="lazy"><figcaption>One command per language</figcaption></figure>
+      <div class="shots reveal" id="shots" role="region" aria-roledescription="carousel" aria-label="DepCart screenshots" tabindex="0">
+        <div class="shots-stage">
+          <figure class="shot" data-pos="-1"><img src="assets/screenshot-search.png" alt="DepCart VS Code sidebar: search results grouped by language" width="688" height="1476" loading="lazy" draggable="false"><figcaption>Grouped results</figcaption></figure>
+          <figure class="shot" data-pos="0"><img src="assets/screenshot-all-languages.png" alt="DepCart VS Code sidebar: searching all ten registries at once" width="688" height="1476" loading="lazy" draggable="false"><figcaption>All ten registries</figcaption></figure>
+          <figure class="shot" data-pos="1"><img src="assets/screenshot-install.png" alt="DepCart VS Code sidebar: one install command per language" width="688" height="1476" loading="lazy" draggable="false"><figcaption>One command per language</figcaption></figure>
+        </div>
+        <div class="shots-nav">
+          <button type="button" class="shots-arrow" data-dir="-1" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+          <div class="shots-dots" role="tablist" aria-label="Choose a screenshot"><button type="button" role="tab" aria-label="Grouped results" aria-selected="false"></button><button type="button" role="tab" aria-label="All ten registries" aria-selected="true"></button><button type="button" role="tab" aria-label="One command per language" aria-selected="false"></button></div>
+          <button type="button" class="shots-arrow" data-dir="1" aria-label="Next screenshot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div>
       </div>
     </section>
 
