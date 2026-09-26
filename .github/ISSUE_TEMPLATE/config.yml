@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Rate or review DepCart
+    url: https://marketplace.visualstudio.com/items?itemName=djain912.depcart&ssr=false#review-details
+    about: Enjoying DepCart? A rating helps other developers find it.
+  - name: Contributing guide
+    url: https://github.com/Djain912/depcart/blob/main/CONTRIBUTING.md
+    about: How to set up the project, run the tests and send a pull request.

@@ -16,6 +16,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Djain912/depcart" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/VS%20Code-1.90%2B-007ACC" alt="VS Code 1.90 or newer">
   <a href="https://linkedin.com/in/darshanjain912"><img src="https://img.shields.io/badge/LinkedIn-Djain912-0A66C2" alt="Djain912 on LinkedIn"></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-73C991" alt="Pull requests welcome"></a>
 </p>
 
 <p align="center">
@@ -29,6 +30,12 @@ https://github.com/user-attachments/assets/41a385e9-c85a-4d75-a9ed-5b72cbe4eca4
 ---
 
 Adding dependencies usually means a browser tab per registry: npmjs.com for the frontend, pypi.org for the scripts, pkg.go.dev for the service, then working out whether this project uses npm or pnpm, pip or uv. **DepCart puts all of that in your editor.** Search once, add what you need from any language, choose versions, and copy or run the exact command your project's tools expect.
+
+<p align="center">
+  <img src="images/demo.gif" width="720" alt="DepCart: search, add a package, and get the install command for the tool your project uses">
+</p>
+
+> **DepCart is new and grows with your feedback.** Tell me what's missing or broken with the **Feedback** link at the bottom of the sidebar, [open an issue](https://github.com/Djain912/depcart/issues/new/choose), or [contribute](CONTRIBUTING.md). New registries and install tools are especially welcome.
 
 ## Features
 
@@ -139,6 +146,15 @@ npm run package     # builds the .vsix
 ```
 
 Press **F5** in VS Code to launch an Extension Development Host with DepCart loaded.
+
+## Feedback and contributing
+
+DepCart is open source and shaped by the people who use it.
+
+- **Report a bug or suggest a feature:** use the **Feedback** link at the bottom of the DepCart sidebar, the feedback button in its title bar, or [open an issue](https://github.com/Djain912/depcart/issues/new/choose).
+- **Ask for another registry or install tool** (CocoaPods, Conan, rye, vlt, ...): [request it here](https://github.com/Djain912/depcart/issues/new?template=registry_request.yml).
+- **Contribute code:** read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, where things live, and how to add a registry. [Good first issues](https://github.com/Djain912/depcart/labels/good%20first%20issue) are a good place to start.
+- **Enjoying it?** Star the repo or [rate DepCart on the Marketplace](https://marketplace.visualstudio.com/items?itemName=djain912.depcart&ssr=false#review-details). It helps other developers find it.
 
 ## Developer
 

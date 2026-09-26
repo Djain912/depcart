@@ -9,6 +9,7 @@ import { searchRegistry, verifySuggestions } from './search';
 import { isValidName } from './validation';
 
 const DEVELOPER_URL = 'https://linkedin.com/in/darshanjain912';
+export const FEEDBACK_URL = 'https://github.com/Djain912/depcart/issues/new/choose';
 const TIMEOUT_MS = 15_000;
 const AI_TIMEOUT_MS = 45_000;
 const AI_MIN_QUERY = 3;
@@ -24,7 +25,8 @@ type FromWebview =
   | { type: 'copy'; registry: string }
   | { type: 'run'; registry: string }
   | { type: 'open'; registry: string; name: string }
-  | { type: 'openDeveloper' };
+  | { type: 'openDeveloper' }
+  | { type: 'openFeedback' };
 
 function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
@@ -114,6 +116,8 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
       }
       case 'openDeveloper':
         return this.openLink(DEVELOPER_URL);
+      case 'openFeedback':
+        return this.openLink(FEEDBACK_URL);
     }
   }
 
@@ -312,7 +316,7 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
     <div id="commands"></div>
   </section>
 
-  <footer class="credit">Developed by <button id="developer" class="credit-link" title="Open Darshan Jain's LinkedIn profile">Darshan Jain</button></footer>
+  <footer class="credit"><button id="feedback" class="credit-link" title="Report a bug or suggest a feature on GitHub">Feedback</button> · Developed by <button id="developer" class="credit-link" title="Open Darshan Jain's LinkedIn profile">Darshan Jain</button></footer>
 
   <script nonce="${nonce}" src="${media('registryIcons.js')}"></script>
   <script nonce="${nonce}" src="${media('main.js')}"></script>

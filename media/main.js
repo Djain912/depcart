@@ -488,6 +488,7 @@
     if (e.key === 'Enter') runSearch();
   });
   el('developer').addEventListener('click', () => vscode.postMessage({ type: 'openDeveloper' }));
+  el('feedback').addEventListener('click', () => vscode.postMessage({ type: 'openFeedback' }));
   clearBtn.addEventListener('click', () => {
     selected = [];
     refresh();

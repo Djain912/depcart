@@ -154,6 +154,16 @@ export async function run(): Promise<void> {
     return `detected all ${init.detected.length} ecosystems; AI model available: ${init.ai}`;
   });
 
+  await check('feedback is one click away: sidebar link and toolbar command', async () => {
+    const html = host.view.webview.html;
+    assert(html.includes('id="feedback"'), 'no Feedback link in the sidebar credit bar');
+    const commands = await vscode.commands.getCommands(true);
+    assert(commands.includes('depcart.feedback'), 'depcart.feedback command is not registered');
+    const menus = ext?.packageJSON?.contributes?.menus?.['view/title'] ?? [];
+    assert(menus.some((m: Message) => m.command === 'depcart.feedback'), 'no Feedback button in the view title bar');
+    return 'Feedback link in the credit bar, "DepCart: Send Feedback or Request a Feature" command, toolbar button';
+  });
+
   const top: Record<string, string> = {};
   for (const [registry, query, expected] of SEARCHES) {
     await check(`search ${registryFor(registry)?.label} for "${query}" finds ${expected}`, async () => {

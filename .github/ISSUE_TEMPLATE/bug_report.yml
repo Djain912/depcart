@@ -1,0 +1,33 @@
+name: Bug report
+description: Something in DepCart doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report this. The more detail you add, the faster it gets fixed.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+      placeholder: I searched for "zod" with npm switched on and got no results.
+    validations:
+      required: true
+  - type: dropdown
+    id: registry
+    attributes:
+      label: Registry
+      multiple: true
+      options: [npm, PyPI, Go modules, crates.io, Maven Central, NuGet, RubyGems, Packagist, pub.dev, Hex, Not registry-specific]
+  - type: input
+    id: versions
+    attributes:
+      label: DepCart, VS Code and OS versions
+      placeholder: DepCart 0.0.2, VS Code 1.105, Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or logs
+      description: Optional. A screenshot of the sidebar, or errors from Help → Toggle Developer Tools → Console.

@@ -1,0 +1,28 @@
+name: New registry or install tool
+description: Ask for another package registry (e.g. CocoaPods, Conan) or tool (e.g. rye, vlt)
+labels: [registry]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Registry or tool
+      placeholder: CocoaPods / rye / vlt
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Website or API docs
+      placeholder: https://cocoapods.org
+  - type: textarea
+    id: command
+    attributes:
+      label: Install command format
+      description: What command or snippet should DepCart produce, and which project files show it's in use?
+      placeholder: "rye add requests==2.34.2 (detected from requirements.lock + [tool.rye] in pyproject.toml)"
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to help add it (see CONTRIBUTING.md → Adding a registry)

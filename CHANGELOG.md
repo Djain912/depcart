@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.2 (2026-09-26)
+
+- **Feedback in one click:** a **Feedback** link in the sidebar's credit bar and a feedback button in the view's title bar open GitHub's issue forms (bug report, feature request, new registry or tool). The same is available as **DepCart: Send Feedback or Request a Feature** in the Command Palette.
+- New contributing guide and issue templates, so it's easy to report bugs, ask for registries and send pull requests.
+- The Marketplace page now shows an animated demo.
+
 ## 0.0.1 (2026-09-26)
 
 First release.

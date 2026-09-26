@@ -5,6 +5,7 @@ brag-output*/**
 images/screenshot-*.png
 images/launch-poster.jpg
 images/icon.svg
+images/demo.gif
 scripts/**
 docs/**
 src/**
@@ -15,3 +16,4 @@ out/test-integration/**
 tsconfig.json
 .gitignore
 .claude/**
+launch-kit/**

@@ -2,7 +2,7 @@
   "name": "depcart",
   "displayName": "DepCart: Package Search & Install",
   "description": "Search npm, PyPI, Go, crates.io, Maven, NuGet, RubyGems, Packagist, pub.dev and Hex from one sidebar, pick exact versions, and get one ready-to-run install command per language for the tool your project uses.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "djain912",
   "author": {
     "name": "Djain912",
@@ -79,6 +79,23 @@
           "type": "webview",
           "id": "depcart.picker",
           "name": "Packages"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "depcart.feedback",
+        "title": "Send Feedback or Request a Feature",
+        "category": "DepCart",
+        "icon": "$(feedback)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "depcart.feedback",
+          "when": "view == depcart.picker",
+          "group": "navigation"
         }
       ]
     },

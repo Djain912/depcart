@@ -4,3 +4,4 @@ out/
 brag-output*/
 *.vsix
 .claude/
+launch-kit/
