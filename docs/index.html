@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DepCart: search 10 package registries from one VS Code sidebar</title>
+  <meta name="description" content="DepCart is a free VS Code extension: search npm, PyPI, Go, crates.io, Maven, NuGet, RubyGems, Packagist, pub.dev and Hex from one sidebar, pick exact versions, and get the install command your project actually uses.">
+  <meta property="og:title" content="DepCart: Ten registries. One sidebar.">
+  <meta property="og:description" content="Search 10 package registries from one VS Code sidebar. Pick exact versions. Get one install command per language.">
+  <meta property="og:image" content="https://djain912.github.io/depcart/assets/poster.jpg">
+  <meta property="og:url" content="https://djain912.github.io/depcart/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0B0B12">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true">
+    <div class="grid"></div>
+    <div class="glow glow-a"></div>
+    <div class="glow glow-b"></div>
+  </div>
+
+  <header class="nav">
+    <a class="brand" href="#top" aria-label="DepCart home"><img src="assets/icon.png" alt="" width="32" height="32"><span>DepCart</span></a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#project">How it picks</a>
+      <a href="#languages">Languages</a>
+      <a href="#video">Video</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-ghost btn-sm" href="https://github.com/Djain912/depcart" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+        GitHub
+      </a>
+      <a class="btn btn-primary btn-sm" href="#download">Download</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ---------- hero ---------- -->
+    <section class="hero">
+      <div class="float-logos" id="float-logos" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot"></span> VS Code extension · free &amp; open source</p>
+        <h1>Ten registries.<br><span class="accent">One sidebar.</span></h1>
+        <p class="lede">Search npm, PyPI, Go, crates.io, Maven, NuGet, RubyGems, Packagist, pub.dev and Hex without leaving your editor. Pick exact versions, and get the install command your project actually uses.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary btn-lg vsix-link" href="https://github.com/Djain912/depcart/releases/latest">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
+            <span>Download <span class="vsix-version">.vsix</span></span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart" target="_blank" rel="noopener">VS Code Marketplace</a>
+        </div>
+        <p class="fineprint">Works with VS Code 1.90+ · MIT licensed · no telemetry</p>
+      </div>
+
+      <div class="hero-demo" aria-label="Animated demo of the DepCart sidebar">
+        <div class="demo">
+          <div class="demo-bar"><span></span><span></span><span></span><em>DepCart: Packages</em></div>
+          <div class="demo-body">
+            <div class="demo-search"><span id="demo-query"></span><i class="caret"></i></div>
+            <div class="demo-toggles" id="demo-toggles"></div>
+            <div class="demo-results" id="demo-results"></div>
+            <div class="demo-install" id="demo-install">
+              <div class="demo-install-head"><span class="demo-install-logo" id="demo-install-logo"></span><b id="demo-install-label">npm</b><small>1 package</small></div>
+              <div class="demo-chips" id="demo-chips"></div>
+              <pre id="demo-cmd"></pre>
+              <div class="demo-hint" id="demo-hint"></div>
+            </div>
+          </div>
+          <div class="demo-credit">Developed by <span>Darshan Jain</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- logo marquee ---------- -->
+    <section class="marquee" aria-label="Supported registries">
+      <div class="marquee-track" id="marquee"></div>
+    </section>
+
+    <!-- ---------- stats ---------- -->
+    <section class="stats reveal">
+      <div class="stat"><b data-count="10">0</b><span>package registries</span></div>
+      <div class="stat"><b data-count="24">0</b><span>install tools</span></div>
+      <div class="stat"><b data-count="1">0</b><span>command per language</span></div>
+      <div class="stat"><b data-count="0">0</b><span>telemetry</span></div>
+    </section>
+
+    <!-- ---------- features ---------- -->
+    <section class="section" id="features">
+      <div class="section-head reveal">
+        <p class="kicker">Why DepCart</p>
+        <h2>Adding dependencies shouldn't take <span class="accent">ten tabs.</span></h2>
+        <p>npmjs.com for the frontend, pypi.org for the scripts, pkg.go.dev for the service, then guessing whether this repo uses npm or pnpm, pip or uv. DepCart puts all of it in your editor.</p>
+      </div>
+      <div class="cards">
+        <article class="card reveal"><div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div><h3>One search box</h3><p>Search every language at once or toggle just the ones you need. The languages your project uses are switched on automatically.</p></article>
+        <article class="card reveal"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M8 12h12M8 18h12"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></div><h3>Clean, grouped results</h3><p>Results grouped by language with registry logos. Exact name matches rise to the top; click a name to open its registry page.</p></article>
+        <article class="card reveal"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg></div><h3>Every version</h3><p>Pick any published version. Stable releases come first, so hundreds of nightly builds never bury the one you want.</p></article>
+        <article class="card reveal"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="m5 7 5 5-5 5M12 19h7"/></svg></div><h3>One command per language</h3><p>npm packages and Go modules never share a command. Copy it, or run it in a terminal opened at your project.</p></article>
+        <article class="card reveal"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="m9 13 2 2 4-4"/></svg></div><h3>Knows your project</h3><p><code>pnpm-lock.yaml</code> means pnpm, <code>uv.lock</code> means uv, a Flutter <code>pubspec.yaml</code> means flutter pub. Your choice is remembered.</p></article>
+        <article class="card reveal"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Safe by design</h3><p>Names and versions are validated before they reach a command, so a malicious package name can't inject shell syntax or flags.</p></article>
+      </div>
+    </section>
+
+    <!-- ---------- knows your project ---------- -->
+    <section class="section" id="project">
+      <div class="section-head reveal">
+        <p class="kicker">How it picks the tool</p>
+        <h2>It reads your project, <span class="accent">not your mind.</span></h2>
+        <p>Click a file. DepCart looks at the top of your workspace and writes the command for the tool you already use.</p>
+      </div>
+      <div class="playground reveal">
+        <div class="files" id="files" role="tablist" aria-label="Project files"></div>
+        <div class="terminal">
+          <div class="terminal-bar"><span></span><span></span><span></span><em>detected</em></div>
+          <div class="terminal-body">
+            <div class="detected" id="detected"></div>
+            <div class="cmdline"><span class="prompt">$</span> <span id="pg-cmd"></span><i class="caret"></i></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- languages ---------- -->
+    <section class="section" id="languages">
+      <div class="section-head reveal">
+        <p class="kicker">Languages</p>
+        <h2>Ten ecosystems, <span class="accent">every tool they offer.</span></h2>
+      </div>
+      <div class="langs" id="langs"></div>
+    </section>
+
+    <!-- ---------- video ---------- -->
+    <section class="section" id="video">
+      <div class="section-head reveal">
+        <p class="kicker">See it</p>
+        <h2>The whole flow in <span class="accent">22 seconds.</span></h2>
+      </div>
+      <div class="video-frame reveal">
+        <video controls preload="metadata" playsinline poster="assets/poster.jpg" src="assets/depcart-launch.mp4"></video>
+      </div>
+      <div class="shots">
+        <figure class="shot reveal"><img src="assets/screenshot-search.png" alt="Search results grouped by language" loading="lazy"><figcaption>Grouped results</figcaption></figure>
+        <figure class="shot reveal"><img src="assets/screenshot-all-languages.png" alt="Searching all ten registries at once" loading="lazy"><figcaption>All ten registries</figcaption></figure>
+        <figure class="shot reveal"><img src="assets/screenshot-install.png" alt="One install command per language" loading="lazy"><figcaption>One command per language</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ---------- download ---------- -->
+    <section class="section" id="download">
+      <div class="download reveal">
+        <img class="download-icon" src="assets/icon.png" alt="" width="96" height="96">
+        <h2>Get DepCart</h2>
+        <p class="release-line" id="release-line">Latest release on GitHub</p>
+        <div class="cta-row center">
+          <a class="btn btn-primary btn-lg vsix-link" href="https://github.com/Djain912/depcart/releases/latest">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
+            <span>Download <span class="vsix-version">.vsix</span></span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart" target="_blank" rel="noopener">VS Code Marketplace</a>
+          <a class="btn btn-ghost btn-lg" href="https://github.com/Djain912/depcart" target="_blank" rel="noopener">Source on GitHub</a>
+        </div>
+        <ol class="steps">
+          <li>Download the <code>.vsix</code> above.</li>
+          <li>In VS Code: Extensions view → <b>…</b> → <b>Install from VSIX…</b>, or run:
+            <div class="copyline"><code id="install-cmd">code --install-extension depcart.vsix</code><button class="copy" data-copy="#install-cmd" aria-label="Copy install command">Copy</button></div>
+          </li>
+          <li>Click the <b>DepCart</b> icon in the Activity Bar and search.</li>
+        </ol>
+        <p class="privacy">Search text goes only to the registries you switch on and the ecosyste.ms backup index. No servers of our own, no telemetry. <a href="https://github.com/Djain912/depcart#privacy-and-network-use" target="_blank" rel="noopener">Privacy details</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand"><img src="assets/icon.png" alt="" width="24" height="24"> DepCart</div>
+    <p>Developed by <a href="https://linkedin.com/in/darshanjain912" target="_blank" rel="noopener">Darshan Jain</a> · <a href="https://github.com/Djain912/depcart" target="_blank" rel="noopener">GitHub</a> · <a href="https://github.com/Djain912/depcart/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a> · MIT License</p>
+    <p class="footer-note">Registry logos from Simple Icons (CC0); names and logos belong to their owners.</p>
+  </footer>
+
+  <script src="assets/registryIcons.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

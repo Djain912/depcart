@@ -16,6 +16,12 @@
   <a href="https://linkedin.com/in/darshanjain912"><img src="https://img.shields.io/badge/LinkedIn-Djain912-0A66C2" alt="Djain912 on LinkedIn"></a>
 </p>
 
+<p align="center">
+  <a href="https://djain912.github.io/depcart/"><b>Website</b></a> ·
+  <a href="https://github.com/Djain912/depcart/releases/latest"><b>Download the .vsix</b></a> ·
+  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><b>VS Code Marketplace</b></a>
+</p>
+
 https://github.com/user-attachments/assets/41a385e9-c85a-4d75-a9ed-5b72cbe4eca4
 
 ---
@@ -55,6 +61,15 @@ Adding dependencies usually means a browser tab per registry: npmjs.com for the 
 | PHP | Packagist | `composer require` |
 | Dart / Flutter | pub.dev | `dart pub add`, `flutter pub add` |
 | Elixir | Hex | `mix.exs` deps snippet |
+
+## Install
+
+- **VS Code Marketplace:** search for **DepCart** in the Extensions view, or open [the Marketplace page](https://marketplace.visualstudio.com/items?itemName=djain912.depcart).
+- **From a .vsix:** download `depcart-<version>.vsix` from the [latest release](https://github.com/Djain912/depcart/releases/latest) (or the [website](https://djain912.github.io/depcart/)), then in VS Code open the Extensions view, click **...** and choose **Install from VSIX...**, or run:
+
+  ```bash
+  code --install-extension depcart-0.0.1.vsix
+  ```
 
 ## How to use
 

@@ -6,6 +6,7 @@ images/screenshot-*.png
 images/launch-poster.jpg
 images/icon.svg
 scripts/**
+docs/**
 src/**
 out/test/**
 out/test-integration/**
@@ -13,3 +14,4 @@ out/test-integration/**
 **/*.vsix
 tsconfig.json
 .gitignore
+.claude/**
