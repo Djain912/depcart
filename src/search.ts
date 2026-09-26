@@ -14,19 +14,27 @@ export type Source = (signal: AbortSignal) => Promise<PackageSummary[]>;
 
 type Outcome = { results: PackageSummary[] } | { error: unknown };
 
-/** Settles within `ms` even when the work ignores its abort signal (e.g. a shared background download). */
+/**
+ * Settles within `ms` even when the work ignores its abort signal (e.g. a shared background download).
+ * Uses a regular timer rather than AbortSignal.timeout, whose unref'd timer can't keep the process alive.
+ */
 export function withDeadline<T>(work: (signal: AbortSignal) => Promise<T>, signal: AbortSignal, ms: number): Promise<T> {
-  const step = AbortSignal.any([signal, AbortSignal.timeout(ms)]);
+  const deadline = new AbortController();
+  const step = AbortSignal.any([signal, deadline.signal]);
   return new Promise<T>((resolve, reject) => {
     const onAbort = () => reject(signal.aborted ? signal.reason : new Error(`no answer within ${Math.round(ms / 1000)}s`));
     if (step.aborted) {
       onAbort();
       return;
     }
+    const timer = setTimeout(() => deadline.abort(), ms);
     step.addEventListener('abort', onAbort, { once: true });
     work(step)
       .then(resolve, reject)
-      .finally(() => step.removeEventListener('abort', onAbort));
+      .finally(() => {
+        clearTimeout(timer);
+        step.removeEventListener('abort', onAbort);
+      });
   });
 }
 
