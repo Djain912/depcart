@@ -19,7 +19,7 @@
    * @typedef {{ id: string, label: string, title: string, site: string, tools: { id: string, label: string }[] }} RegistryInfo
    * @typedef {{ registry: string, name: string, version: string, description: string, via?: string }} Result
    * @typedef {{ registry: string, name: string, version: string, versions: string[], prereleases?: string[], latest: string, loading?: boolean, error?: string }} Item
-   * @typedef {{ registry: string, tool: string, kind: 'command' | 'snippet', command: string, count: number, note?: string }} Block
+   * @typedef {{ registry: string, tool: string, kind: 'command' | 'snippet', command: string, count: number, note?: string, missing?: { program: string, installName: string, alternative?: { id: string, label: string } } }} Block
    */
 
   const saved = vscode.getState() || {};
@@ -87,6 +87,7 @@
     check: 'M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z',
     chevron: 'M9.3 6.7 10.7 5.3 17.4 12l-6.7 6.7-1.4-1.4 5.3-5.3z',
     close: 'M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4z',
+    warning: 'M1 21h22L12 2zm12-3h-2v-2h2zm0-4h-2v-4h2z',
   };
 
   function svg(/** @type {string} */ path, /** @type {string} */ cls) {
@@ -360,6 +361,28 @@
     );
   }
 
+  /** Shown when the program a command runs isn't installed, so Run in terminal won't just fail. */
+  function missingNotice(/** @type {Block} */ b) {
+    const { program, installName, alternative } = b.missing;
+    return h(
+      'div',
+      { class: 'missing', title: 'Installed it already? Restart VS Code so it picks up the new PATH.' },
+      svg(GLYPHS.warning, 'glyph'),
+      h('span', {}, `${program} isn't installed`),
+      h(
+        'button',
+        { class: 'link-button', onclick: () => vscode.postMessage({ type: 'openInstallGuide', registry: b.registry, tool: b.tool }) },
+        `Install ${installName}`,
+      ),
+      alternative &&
+        h(
+          'button',
+          { class: 'link-button', onclick: () => vscode.postMessage({ type: 'setTool', registry: b.registry, tool: alternative.id }) },
+          `Use ${alternative.label}`,
+        ),
+    );
+  }
+
   /** @param {{ blocks: Block[], rejected: {name: string, version: string}[], folder?: string }} msg */
   function renderCommands(msg) {
     const nodes = msg.blocks.map((b) => {
@@ -392,6 +415,7 @@
             ),
           ),
         h('pre', { class: isSnippet ? 'snippet' : '' }, b.command),
+        b.missing && missingNotice(b),
         h(
           'div',
           { class: 'actions' },

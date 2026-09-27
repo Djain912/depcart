@@ -15,12 +15,19 @@ export const pubRegistry: Registry = {
   namePattern: /^[a-z_][a-z0-9_]*$/,
   versionPattern: /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/,
   tools: [
-    { id: 'dart', label: 'dart pub', kind: 'command', build: (p) => `dart pub add ${specs(p, ':')}` },
+    {
+      id: 'dart',
+      label: 'dart pub',
+      kind: 'command',
+      needs: { program: 'dart', installName: 'the Dart SDK', installUrl: 'https://dart.dev/get-dart' },
+      build: (p) => `dart pub add ${specs(p, ':')}`,
+    },
     {
       id: 'flutter',
       label: 'flutter pub',
       kind: 'command',
       markers: [{ file: 'pubspec.yaml', contains: /sdk:\s*flutter/ }],
+      needs: { program: 'flutter', installName: 'Flutter', installUrl: 'https://docs.flutter.dev/install' },
       build: (p) => `flutter pub add ${specs(p, ':')}`,
     },
   ],

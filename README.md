@@ -103,6 +103,10 @@ DepCart looks at the top level of your workspace folder:
 
 Pick a different tool in the Install section at any time; DepCart remembers it for that workspace.
 
+### When a tool isn't installed
+
+DepCart checks whether the program a command needs (npm, pnpm, uv, cargo, go, ...) is on your PATH, without running anything. If it isn't, the Install section says so, with a link to the tool's official install guide. When your project doesn't require that tool, it also offers one you do have installed. **Run in terminal** checks again before running and asks what to do instead of failing with "command not found". If only `pip3` is installed, the command uses `pip3`. If you've just installed a tool, restart VS Code so it sees the new PATH.
+
 ## Privacy and network use
 
 DepCart has no servers of its own and collects no telemetry.

@@ -41,6 +41,7 @@ export const nugetRegistry: Registry = {
       id: 'dotnet',
       label: 'dotnet CLI',
       kind: 'command',
+      needs: { program: 'dotnet', installName: 'the .NET SDK', installUrl: 'https://dotnet.microsoft.com/download' },
       build: (p) => perPackage(p, (x) => `dotnet add package ${x.name} --version ${x.version}`),
     },
     {
@@ -48,6 +49,7 @@ export const nugetRegistry: Registry = {
       label: 'Paket',
       kind: 'command',
       markers: [{ file: 'paket.dependencies' }],
+      needs: { program: 'paket', installName: 'Paket', installUrl: 'https://fsprojects.github.io/Paket/installation.html' },
       build: (p) => perPackage(p, (x) => `paket add ${x.name} --version ${x.version}`),
     },
     {

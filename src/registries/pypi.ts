@@ -140,12 +140,19 @@ export const pypiRegistry: Registry = {
   namePattern: /^[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?$/,
   versionPattern: /^\d[0-9A-Za-z.+_-]*$/,
   tools: [
-    { id: 'pip', label: 'pip', kind: 'command', build: (p) => `pip install ${specs(p, '==')}` },
+    {
+      id: 'pip',
+      label: 'pip',
+      kind: 'command',
+      needs: { program: 'pip', alternatives: ['pip3'], installName: 'pip', installUrl: 'https://pip.pypa.io/en/stable/installation/' },
+      build: (p) => `pip install ${specs(p, '==')}`,
+    },
     {
       id: 'uv',
       label: 'uv',
       kind: 'command',
       markers: [{ file: 'uv.lock' }, { file: 'pyproject.toml', contains: /^\[tool\.uv/m }],
+      needs: { program: 'uv', installName: 'uv', installUrl: 'https://docs.astral.sh/uv/getting-started/installation/' },
       build: (p) => `uv add ${specs(p, '==')}`,
     },
     {
@@ -153,6 +160,7 @@ export const pypiRegistry: Registry = {
       label: 'poetry',
       kind: 'command',
       markers: [{ file: 'poetry.lock' }, { file: 'pyproject.toml', contains: /^\[tool\.poetry/m }],
+      needs: { program: 'poetry', installName: 'Poetry', installUrl: 'https://python-poetry.org/docs/#installation' },
       build: (p) => `poetry add ${specs(p, '==')}`,
     },
     {
@@ -160,6 +168,7 @@ export const pypiRegistry: Registry = {
       label: 'pipenv',
       kind: 'command',
       markers: [{ file: 'Pipfile' }, { file: 'Pipfile.lock' }],
+      needs: { program: 'pipenv', installName: 'Pipenv', installUrl: 'https://pipenv.pypa.io/en/latest/installation.html' },
       build: (p) => `pipenv install ${specs(p, '==')}`,
     },
     {
@@ -167,6 +176,7 @@ export const pypiRegistry: Registry = {
       label: 'pdm',
       kind: 'command',
       markers: [{ file: 'pdm.lock' }, { file: 'pyproject.toml', contains: /^\[tool\.pdm/m }],
+      needs: { program: 'pdm', installName: 'PDM', installUrl: 'https://pdm-project.org/en/latest/#installation' },
       build: (p) => `pdm add ${specs(p, '==')}`,
     },
   ],

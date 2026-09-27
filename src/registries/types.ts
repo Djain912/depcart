@@ -51,7 +51,18 @@ export interface InstallTool {
   kind: 'command' | 'snippet';
   /** Project files that show this tool is the one in use. */
   markers?: Marker[];
+  /** Commands only: the program the command starts with, and where to get it when it isn't installed. */
+  needs?: ProgramNeed;
   build(packages: PackageSpec[]): string;
+}
+
+export interface ProgramNeed {
+  program: string;
+  /** Other names the same program goes by (e.g. pip3); the command is rewritten to use the one found. */
+  alternatives?: string[];
+  /** What to install, e.g. "Node.js" for npm. */
+  installName: string;
+  installUrl: string;
 }
 
 export interface Registry {

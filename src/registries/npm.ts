@@ -24,12 +24,20 @@ export const npmRegistry: Registry = {
   namePattern: /^(?:@[a-z0-9][a-z0-9._~-]*\/)?[a-zA-Z0-9][a-zA-Z0-9._~-]*$/,
   versionPattern: /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/,
   tools: [
-    { id: 'npm', label: 'npm', kind: 'command', markers: [{ file: 'package-lock.json' }], build: (p) => `npm install ${specs(p, '@')}` },
+    {
+      id: 'npm',
+      label: 'npm',
+      kind: 'command',
+      needs: { program: 'npm', installName: 'Node.js', installUrl: 'https://nodejs.org/en/download' },
+      markers: [{ file: 'package-lock.json' }],
+      build: (p) => `npm install ${specs(p, '@')}`,
+    },
     {
       id: 'yarn',
       label: 'yarn',
       kind: 'command',
       markers: [{ file: 'yarn.lock' }, { file: '.yarnrc.yml' }, packageJsonManager('yarn')],
+      needs: { program: 'yarn', installName: 'Yarn', installUrl: 'https://yarnpkg.com/getting-started/install' },
       build: (p) => `yarn add ${specs(p, '@')}`,
     },
     {
@@ -37,6 +45,7 @@ export const npmRegistry: Registry = {
       label: 'pnpm',
       kind: 'command',
       markers: [{ file: 'pnpm-lock.yaml' }, { file: 'pnpm-workspace.yaml' }, packageJsonManager('pnpm')],
+      needs: { program: 'pnpm', installName: 'pnpm', installUrl: 'https://pnpm.io/installation' },
       build: (p) => `pnpm add ${specs(p, '@')}`,
     },
     {
@@ -44,6 +53,7 @@ export const npmRegistry: Registry = {
       label: 'bun',
       kind: 'command',
       markers: [{ file: 'bun.lock' }, { file: 'bun.lockb' }, packageJsonManager('bun')],
+      needs: { program: 'bun', installName: 'Bun', installUrl: 'https://bun.sh/docs/installation' },
       build: (p) => `bun add ${specs(p, '@')}`,
     },
     {
@@ -51,6 +61,7 @@ export const npmRegistry: Registry = {
       label: 'deno',
       kind: 'command',
       markers: [{ file: 'deno.json' }, { file: 'deno.jsonc' }, { file: 'deno.lock' }],
+      needs: { program: 'deno', installName: 'Deno', installUrl: 'https://docs.deno.com/runtime/getting_started/installation/' },
       build: (p) => `deno add ${p.map((x) => `npm:${x.name}@${x.version}`).join(' ')}`,
     },
   ],

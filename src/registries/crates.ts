@@ -52,7 +52,15 @@ export const cratesRegistry: Registry = {
   projectMarkers: [{ file: 'Cargo.toml' }],
   namePattern: /^[A-Za-z][A-Za-z0-9_-]{0,63}$/,
   versionPattern: /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/,
-  tools: [{ id: 'cargo', label: 'cargo add', kind: 'command', build: (p) => `cargo add ${specs(p, '@')}` }],
+  tools: [
+    {
+      id: 'cargo',
+      label: 'cargo add',
+      kind: 'command',
+      needs: { program: 'cargo', installName: 'Rust (cargo)', installUrl: 'https://rust-lang.org/tools/install/' },
+      build: (p) => `cargo add ${specs(p, '@')}`,
+    },
+  ],
 
   pageUrl: (name) => `https://crates.io/crates/${name}`,
 

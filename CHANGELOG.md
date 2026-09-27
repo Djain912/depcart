@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3 (2026-09-27)
+
+- **No more "command not found".** DepCart now checks whether the program a command needs (npm, pnpm, uv, poetry, cargo, go, dotnet, composer, flutter, ...) is installed. If it isn't, the Install section says so and links to the official install guide. If your project doesn't require that tool, it also offers another one you have. **Run in terminal** checks again before running and lets you install, switch or run anyway.
+- If only `pip3` is installed, pip commands use `pip3`.
+- A timing test that could fail on a busy CI machine now has a safe margin.
+
 ## 0.0.2 (2026-09-26)
 
 - **Feedback in one click:** a **Feedback** link in the sidebar's credit bar and a feedback button in the view's title bar open GitHub's issue forms (bug report, feature request, new registry or tool). The same is available as **DepCart: Send Feedback or Request a Feature** in the Command Palette.

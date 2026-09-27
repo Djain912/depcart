@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { PickerViewProvider } from '../pickerViewProvider';
 import { registries, registryFor } from '../registries';
+import { isOnPath } from '../toolCheck';
 import { isValidVersion } from '../validation';
 
 interface Check {
@@ -215,6 +216,7 @@ export async function run(): Promise<void> {
 
   const selection = registries.filter((r) => latest[r.id]).map((r) => ({ registry: r.id, name: top[r.id], version: latest[r.id] }));
   let npmCommand = '';
+  let commandBlocks: Message[] = [];
   await check('one command block per language, tools detected from project files', async () => {
     const from = host.mark();
     host.send({ type: 'selection', items: selection });
@@ -224,7 +226,26 @@ export async function run(): Promise<void> {
     const wrongTools = msg.blocks.filter((b: Message) => b.tool !== EXPECTED_TOOLS[b.registry]).map((b: Message) => `${b.registry}=${b.tool}`);
     assert(wrongTools.length === 0, `unexpected tools: ${wrongTools.join(', ')}`);
     npmCommand = msg.blocks.find((b: Message) => b.registry === 'npm')?.command ?? '';
+    commandBlocks = msg.blocks;
     return msg.blocks.map((b: Message) => `${b.tool}: ${b.command.split('\n')[0]}`).join(' | ');
+  });
+
+  await check('tools that are not installed are flagged, with an install guide, before Run in terminal', async () => {
+    const report: string[] = [];
+    for (const b of commandBlocks.filter((x: Message) => x.kind === 'command')) {
+      const needs = registryFor(b.registry)?.tools.find((t) => t.id === b.tool)?.needs;
+      assert(needs, `${b.tool} has no program to check`);
+      const program = b.command.split(' ')[0];
+      const onPath = await isOnPath(program);
+      assert(onPath === !b.missing, `${program}: on PATH=${onPath} but flagged missing=${!!b.missing}`);
+      if (b.missing) {
+        assert(b.missing.program === needs.program && b.missing.installName === needs.installName, `bad notice for ${b.tool}`);
+        assert(!b.missing.alternative, `${b.tool} comes from the project's files, so no other tool should be offered`);
+      }
+      report.push(`${program} ${onPath ? 'found' : 'missing, install guide shown'}`);
+    }
+    assert(!commandBlocks.find((b: Message) => b.registry === 'npm')?.missing, 'npm is flagged although the tests run on Node');
+    return report.join(', ');
   });
 
   await check('switching the npm tool to pnpm rewrites the command', async () => {

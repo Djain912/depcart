@@ -36,10 +36,12 @@ test('falls back when the first source is empty or fails', async () => {
 });
 
 test('a hanging source is overtaken by the backup and never blocks', async () => {
+  // A long step deadline, so finishing well under it proves nothing waited for the hanging source,
+  // with room to spare on a busy CI machine.
   const started = Date.now();
-  const results = await firstNonEmpty([never, () => after(20, hit('backup'))], new AbortController().signal, fast);
+  const results = await firstNonEmpty([never, () => after(20, hit('backup'))], new AbortController().signal, { stepMs: 2000, hedgeMs: 50 });
   assert.deepEqual(results.map((r) => r.name), ['backup']);
-  assert.ok(Date.now() - started < 250);
+  assert.ok(Date.now() - started < 1000);
 });
 
 test('a slow first source still counts if it answers before the backup', async () => {

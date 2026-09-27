@@ -493,6 +493,34 @@ pre.snippet {
   font-size: 0.85em;
 }
 
+/* Program not installed: a warning under the command, with the install guide one click away. */
+.missing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-left: 2px solid var(--vscode-editorWarning-foreground, #cca700);
+  background: var(--vscode-inputValidation-warningBackground, transparent);
+  font-size: 0.9em;
+}
+
+.missing .glyph {
+  width: 14px;
+  height: 14px;
+  fill: var(--vscode-editorWarning-foreground, #cca700);
+}
+
+.link-button {
+  color: var(--vscode-textLink-foreground);
+}
+
+.link-button:hover {
+  color: var(--vscode-textLink-activeForeground, var(--vscode-textLink-foreground));
+  text-decoration: underline;
+}
+
 /* ---------- Developer credit ---------- */
 
 .credit {

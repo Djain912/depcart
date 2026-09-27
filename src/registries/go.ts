@@ -90,7 +90,15 @@ export const goRegistry: Registry = {
   projectMarkers: [{ file: 'go.mod' }, { file: 'go.work' }],
   namePattern: /^[A-Za-z0-9][A-Za-z0-9._~-]*(?:\/[A-Za-z0-9._~+-]+)*$/,
   versionPattern: /^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/,
-  tools: [{ id: 'go', label: 'go get', kind: 'command', build: (p) => `go get ${specs(p, '@')}` }],
+  tools: [
+    {
+      id: 'go',
+      label: 'go get',
+      kind: 'command',
+      needs: { program: 'go', installName: 'Go', installUrl: 'https://go.dev/doc/install' },
+      build: (p) => `go get ${specs(p, '@')}`,
+    },
+  ],
 
   pageUrl: (name) => `https://pkg.go.dev/${name}`,
 

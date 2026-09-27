@@ -6,6 +6,7 @@ import { detectEcosystems, detectTool, listProjectFiles } from './detect';
 import { registries, registryFor } from './registries';
 import type { Registry } from './registries/types';
 import { searchRegistry, verifySuggestions } from './search';
+import { checkPrograms, pathFinder, type ToolSource } from './toolCheck';
 import { isValidName } from './validation';
 
 const DEVELOPER_URL = 'https://linkedin.com/in/darshanjain912';
@@ -25,6 +26,7 @@ type FromWebview =
   | { type: 'copy'; registry: string }
   | { type: 'run'; registry: string }
   | { type: 'open'; registry: string; name: string }
+  | { type: 'openInstallGuide'; registry: string; tool: string }
   | { type: 'openDeveloper' }
   | { type: 'openFeedback' };
 
@@ -43,6 +45,7 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
   private view?: vscode.WebviewView;
   private selections: Selection[] = [];
   private blocks: CommandBlock[] = [];
+  private toolSources: Record<string, ToolSource> = {};
   private folder?: vscode.WorkspaceFolder;
   private searchAbort?: AbortController;
   private refreshSeq = 0;
@@ -114,6 +117,8 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
         }
         return;
       }
+      case 'openInstallGuide':
+        return this.openInstallGuide(msg.registry, msg.tool);
       case 'openDeveloper':
         return this.openLink(DEVELOPER_URL);
       case 'openFeedback':
@@ -239,22 +244,27 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
     const saved = this.workspaceState.get<Record<string, string>>(TOOL_CHOICES_KEY, {});
     const used = new Set(this.selections.map((s) => s.registry));
     const toolIds: Record<string, string | undefined> = {};
+    const sources: Record<string, ToolSource> = {};
     const notes: Record<string, string> = {};
     for (const registry of registries.filter((r) => used.has(r.id))) {
       const detected = dir ? await detectTool(dir, files, registry) : undefined;
       const chosen = registry.tools.find((t) => t.id === saved[registry.id]);
       toolIds[registry.id] = chosen?.id ?? detected?.tool.id;
+      sources[registry.id] = chosen ? 'chosen' : detected ? 'detected' : 'default';
       if (chosen && chosen !== detected?.tool) {
         notes[registry.id] = detected ? `your choice · project uses ${detected.tool.label} (${detected.file})` : 'your choice';
       } else if (detected) {
         notes[registry.id] = `detected from ${detected.file}`;
       }
     }
+    const built = buildCommands(this.selections, toolIds);
+    const blocks = await checkPrograms(built.blocks, sources, pathFinder());
     if (seq !== this.refreshSeq) {
       return;
     }
-    const { blocks, rejected } = buildCommands(this.selections, toolIds);
+    const { rejected } = built;
     this.blocks = blocks;
+    this.toolSources = sources;
     this.folder = folder;
     this.post({
       type: 'commands',
@@ -264,17 +274,53 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  private run(registryId: string): void {
-    const block = this.blocks.find((b) => b.registry === registryId);
-    if (!block || block.kind !== 'command' || !this.folder) {
+  /**
+   * Checks the program again right before running (it may have been installed since the block was shown).
+   * If it's still missing, the user decides: install it, switch tools, or run the command anyway.
+   */
+  private async run(registryId: string): Promise<void> {
+    const shown = this.blocks.find((b) => b.registry === registryId);
+    const folder = this.folder;
+    if (!shown || shown.kind !== 'command' || !folder) {
       return;
     }
-    const name = `DepCart: ${this.folder.name}`;
+    const [block] = await checkPrograms([shown], this.toolSources, pathFinder(true));
+    if (block.missing) {
+      const { program, installName, alternative } = block.missing;
+      const install = `Install ${installName}`;
+      const switchTo = alternative && `Use ${alternative.label}`;
+      const choice = await vscode.window.showWarningMessage(
+        `${program} isn't installed, or VS Code can't find it on your PATH. Install ${installName} and restart VS Code, ` +
+          `${alternative ? `use ${alternative.label} instead, ` : ''}or run the command anyway.`,
+        ...[install, switchTo, 'Run anyway'].filter((c): c is string => !!c),
+      );
+      if (choice === install) {
+        return this.openInstallGuide(registryId, block.tool);
+      }
+      if (alternative && choice === switchTo) {
+        await this.setTool(registryId, alternative.id);
+        return this.run(registryId);
+      }
+      if (choice !== 'Run anyway') {
+        return;
+      }
+    } else if (shown.missing) {
+      void this.refreshCommands(); // installed since it was shown: drop the warning
+    }
+    const name = `DepCart: ${folder.name}`;
     const terminal =
       vscode.window.terminals.find((t) => t.name === name && t.exitStatus === undefined) ??
-      vscode.window.createTerminal({ name, cwd: this.folder.uri });
+      vscode.window.createTerminal({ name, cwd: folder.uri });
     terminal.show();
     terminal.sendText(block.command);
+  }
+
+  /** The URL comes from the tool's definition, never from the webview. */
+  private async openInstallGuide(registryId: string, toolId: string): Promise<void> {
+    const url = registryFor(registryId)?.tools.find((t) => t.id === toolId)?.needs?.installUrl;
+    if (url) {
+      await this.openLink(url);
+    }
   }
 
   private post(message: unknown): void {

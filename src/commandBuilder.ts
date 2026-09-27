@@ -14,6 +14,16 @@ export interface CommandBlock {
   kind: 'command' | 'snippet';
   command: string;
   count: number;
+  /** Set when the program the command runs isn't installed (see toolCheck.ts). */
+  missing?: MissingProgram;
+}
+
+export interface MissingProgram {
+  program: string;
+  /** What to install, e.g. "Node.js" for npm. */
+  installName: string;
+  /** An installed tool for the same language, offered only when the project doesn't require this one. */
+  alternative?: { id: string; label: string };
 }
 
 /**

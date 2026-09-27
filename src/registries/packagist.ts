@@ -14,7 +14,15 @@ export const packagistRegistry: Registry = {
   projectMarkers: [{ file: 'composer.json' }],
   namePattern: /^[a-z0-9](?:[_.-]?[a-z0-9]+)*\/[a-z0-9](?:(?:[_.]|-{1,2})?[a-z0-9]+)*$/,
   versionPattern: /^v?\d+(?:\.\d+)*(?:-[0-9A-Za-z.]+)?$/,
-  tools: [{ id: 'composer', label: 'composer', kind: 'command', build: (p) => `composer require ${specs(p, ':')}` }],
+  tools: [
+    {
+      id: 'composer',
+      label: 'composer',
+      kind: 'command',
+      needs: { program: 'composer', installName: 'Composer', installUrl: 'https://getcomposer.org/download/' },
+      build: (p) => `composer require ${specs(p, ':')}`,
+    },
+  ],
 
   pageUrl: (name) => `https://packagist.org/packages/${name}`,
 

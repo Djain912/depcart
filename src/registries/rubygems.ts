@@ -17,13 +17,20 @@ export const rubygemsRegistry: Registry = {
   namePattern: /^[A-Za-z0-9][A-Za-z0-9._-]*$/,
   versionPattern: /^\d+(?:\.[0-9A-Za-z]+)*$/,
   tools: [
-    { id: 'gem', label: 'gem install', kind: 'command', build: (p) => `gem install ${specs(p, ':')}` },
+    {
+      id: 'gem',
+      label: 'gem install',
+      kind: 'command',
+      needs: { program: 'gem', installName: 'Ruby', installUrl: 'https://www.ruby-lang.org/en/documentation/installation/' },
+      build: (p) => `gem install ${specs(p, ':')}`,
+    },
     {
       id: 'bundler',
       label: 'bundle add',
       kind: 'command',
       markers: [{ file: 'Gemfile' }, { file: 'Gemfile.lock' }],
       // bundle add applies one --version to every gem it's given, so each gem gets its own line.
+      needs: { program: 'bundle', installName: 'Bundler', installUrl: 'https://bundler.io/' },
       build: (p) => perPackage(p, (x) => `bundle add ${x.name} --version ${x.version}`),
     },
   ],
