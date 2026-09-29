@@ -7,6 +7,16 @@
 <p align="center">
   <b>Search 10 package registries from one VS Code sidebar. Pick exact versions. Get one install command per language.</b>
 </p>
+<p align="center">
+  <a href="https://www.producthunt.com/products/depcart?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-depcart" target="_blank" rel="noopener noreferrer">
+    <img
+      src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1261822&theme=light&t=1790658609945"
+      alt="DepCart - No leaving of IDE and switching tabs more for packages. | Product Hunt"
+      width="250"
+      height="54"
+    />
+  </a>
+</p>
 
 <p align="center">
   <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><img src="https://img.shields.io/visual-studio-marketplace/v/djain912.depcart?label=VS%20Code%20Marketplace&color=007ACC" alt="VS Code Marketplace version"></a>
