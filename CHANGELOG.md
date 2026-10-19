@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.4 (2026-10-19)
+
+- **Package health in every search result.** Under each package: how widely it's used (downloads last month or in total, or how many packages depend on it), when it was last released and when its repository last got a commit. Deprecated packages, archived repositories and packages with no release or commit in over 2 years are flagged in color. Hover for exact numbers and dates. The data comes from the ecosyste.ms package index. Thanks to the Reddit feedback that asked for it.
+- **The DepCart icon now shows in Restricted Mode.** Before, VS Code turned DepCart off in folders you hadn't trusted, so its Activity Bar icon disappeared. Now search, package health and Copy work there too. **Run in terminal** still waits until you trust the folder, and offers to open the workspace trust settings.
+- **DepCart: Search Packages** in the Command Palette opens the sidebar with the cursor in the search box. Assign it a keyboard shortcut for one-keystroke access.
+- The README's Marketplace badges work again, and the Product Hunt badge no longer breaks packaging.
+
 ## 0.0.3 (2026-09-27)
 
 - **No more "command not found".** DepCart now checks whether the program a command needs (npm, pnpm, uv, poetry, cargo, go, dotnet, composer, flutter, ...) is installed. If it isn't, the Install section says so and links to the official install guide. If your project doesn't require that tool, it also offers another one you have. **Run in terminal** checks again before running and lets you install, switch or run anyway.

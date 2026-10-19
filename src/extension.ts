@@ -9,6 +9,12 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(PickerViewProvider.viewId, provider),
     vscode.commands.registerCommand('depcart.feedback', () => vscode.env.openExternal(vscode.Uri.parse(FEEDBACK_URL))),
+    vscode.commands.registerCommand('depcart.search', () => provider.focusSearch()),
+    // Trusting the folder enables Run in terminal and the workspace's own depcart.aiFallback value.
+    vscode.workspace.onDidGrantWorkspaceTrust(() => {
+      void provider.refreshCommands();
+      void provider.refreshAiAvailability();
+    }),
     vscode.lm.onDidChangeChatModels(() => provider.refreshAiAvailability()),
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration('depcart.aiFallback')) {

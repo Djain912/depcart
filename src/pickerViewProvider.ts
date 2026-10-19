@@ -3,8 +3,9 @@ import * as vscode from 'vscode';
 import { aiAvailable, suggestPackages } from './ai';
 import { buildCommands, type CommandBlock, type Selection } from './commandBuilder';
 import { detectEcosystems, detectTool, listProjectFiles } from './detect';
+import { HealthLookup } from './health';
 import { registries, registryFor } from './registries';
-import type { Registry } from './registries/types';
+import type { PackageHealth, Registry } from './registries/types';
 import { searchRegistry, verifySuggestions } from './search';
 import { checkPrograms, pathFinder, type ToolSource } from './toolCheck';
 import { isValidName } from './validation';
@@ -15,12 +16,15 @@ const TIMEOUT_MS = 15_000;
 const AI_TIMEOUT_MS = 45_000;
 const AI_MIN_QUERY = 3;
 const TOOL_CHOICES_KEY = 'depcart.toolChoices';
+/** The webview asks for the rows it shows: three per language, or up to 20 plus AI picks for one. */
+const MAX_HEALTH_ITEMS = 60;
 
 type FromWebview =
   | { type: 'ready' }
   | { type: 'search'; query: string; registries: string[]; requestId: number }
   | { type: 'askAi'; query: string; registries: string[]; requestId: number }
   | { type: 'versions'; registry: string; name: string }
+  | { type: 'health'; items: { registry: string; name: string }[] }
   | { type: 'selection'; items: Selection[] }
   | { type: 'setTool'; registry: string; tool: string }
   | { type: 'copy'; registry: string }
@@ -49,6 +53,7 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
   private folder?: vscode.WorkspaceFolder;
   private searchAbort?: AbortController;
   private refreshSeq = 0;
+  private readonly health = new HealthLookup();
 
   constructor(
     private readonly extensionUri: vscode.Uri,
@@ -94,6 +99,8 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
         );
       case 'versions':
         return this.versions(msg.registry, msg.name);
+      case 'health':
+        return this.lookupHealth(Array.isArray(msg.items) ? msg.items : []);
       case 'selection':
         this.selections = Array.isArray(msg.items) ? msg.items : [];
         return this.refreshCommands();
@@ -208,6 +215,47 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
+  /**
+   * Downloads, last release and last commit for the results on screen. Every name gets an answer, so
+   * no row waits forever: null when there's nothing to show, `failed` when the webview should try
+   * again on its next search.
+   */
+  private async lookupHealth(items: { registry: string; name: string }[]): Promise<void> {
+    const byRegistry = new Map<Registry, { names: string[]; skipped: string[] }>();
+    items.forEach((item, i) => {
+      const registry = registryFor(String(item?.registry));
+      if (!registry || typeof item.name !== 'string') {
+        return;
+      }
+      const entry = byRegistry.get(registry) ?? { names: [], skipped: [] };
+      (i < MAX_HEALTH_ITEMS && isValidName(registry, item.name) ? entry.names : entry.skipped).push(item.name);
+      byRegistry.set(registry, entry);
+    });
+    await Promise.all(
+      [...byRegistry].map(async ([registry, { names, skipped }]) => {
+        const health: Record<string, PackageHealth | null> = Object.create(null); // see HealthLookup.get
+        for (const name of skipped) {
+          health[name] = null;
+        }
+        let failed: string[] = [];
+        if (names.length) {
+          try {
+            Object.assign(health, await this.health.get(registry, names, AbortSignal.timeout(TIMEOUT_MS)));
+          } catch {
+            failed = names;
+          }
+        }
+        this.post({ type: 'health', registry: registry.id, health, failed });
+      }),
+    );
+  }
+
+  /** Opens the sidebar with the cursor in the search box. */
+  async focusSearch(): Promise<void> {
+    await vscode.commands.executeCommand(`${PickerViewProvider.viewId}.focus`);
+    this.post({ type: 'focusSearch' });
+  }
+
   private async versions(registryId: string, name: string): Promise<void> {
     const registry = registryFor(registryId);
     if (!registry || !isValidName(registry, name)) {
@@ -271,6 +319,7 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
       blocks: blocks.map((b) => ({ ...b, note: notes[b.registry] })),
       rejected,
       folder: folder?.name,
+      trusted: vscode.workspace.isTrusted,
     });
   }
 
@@ -282,6 +331,18 @@ export class PickerViewProvider implements vscode.WebviewViewProvider {
     const shown = this.blocks.find((b) => b.registry === registryId);
     const folder = this.folder;
     if (!shown || shown.kind !== 'command' || !folder) {
+      return;
+    }
+    // Installing runs project scripts and config (lifecycle scripts, .npmrc, ...), so Restricted Mode only copies.
+    if (!vscode.workspace.isTrusted) {
+      const manage = 'Manage Workspace Trust';
+      const choice = await vscode.window.showWarningMessage(
+        `${folder.name} is open in Restricted Mode, so DepCart won't run commands there. Copy the command instead, or trust the folder to run it.`,
+        manage,
+      );
+      if (choice === manage) {
+        await vscode.commands.executeCommand('workbench.trust.manage');
+      }
       return;
     }
     const [block] = await checkPrograms([shown], this.toolSources, pathFinder(true));

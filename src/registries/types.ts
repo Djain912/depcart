@@ -6,6 +6,28 @@ export interface PackageSummary {
   description: string;
   /** Set when the result didn't come from the registry's own search. */
   via?: 'ecosyste.ms' | 'ai';
+  /** Popularity and maintenance signals, when they came with the search. */
+  health?: PackageHealth;
+}
+
+/** What developers check before trusting a dependency: is it used, and is it still maintained? */
+export interface PackageHealth {
+  downloads?: number;
+  /** "month" for downloads in the last month, "total" for all-time downloads. */
+  downloadsPeriod?: 'month' | 'total';
+  /** Packages on the same registry that depend on it (shown when the registry has no download stats). */
+  dependents?: number;
+  /** ISO date the latest release was published. */
+  released?: string;
+  releasedVersion?: string;
+  /** ISO date of the last push to the source repository. */
+  committed?: string;
+  /** Source repository as host/owner/name, e.g. "github.com/colinhacks/zod". */
+  repository?: string;
+  stars?: number;
+  deprecated?: boolean;
+  /** The source repository is archived (read-only). */
+  archived?: boolean;
 }
 
 /** How to search this registry through the ecosyste.ms package index (used as a second source). */
@@ -18,7 +40,7 @@ export interface EcosystemsConfig {
   sort: 'downloads' | 'dependent_packages_count';
   /** Also match names whose last segment is the query, e.g. "/" for Go ("github.com/gin-gonic/gin"). */
   lastSegmentSeparator?: string;
-  /** Don't show the index's latest version in results (it's stale for some registries). */
+  /** Don't show the index's latest version or its release date (they're stale for some registries). */
   hideVersion?: boolean;
   /** Search the index before the registry's own search (when the index ranks better). */
   preferred?: boolean;

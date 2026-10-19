@@ -124,7 +124,8 @@ const EXPECTED_TOOLS: Record<string, string> = {
   hex: 'mix',
 };
 
-export async function run(): Promise<void> {
+/** Everything, end to end, in a trusted folder. */
+async function trustedChecks(): Promise<void> {
   const workspace = process.env.DEPCART_TEST_WORKSPACE ?? vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
   const ext = vscode.extensions.getExtension('djain912.depcart');
 
@@ -315,6 +316,161 @@ export async function run(): Promise<void> {
     return `verified AI suggestions: ${msg.results.map((r: Message) => r.name).join(', ') || '(none)'}`;
   });
 
+  await check('package health for every registry: downloads or dependents, last release, last commit', async () => {
+    const items = registries.filter((r) => top[r.id]).map((r) => ({ registry: r.id, name: top[r.id] }));
+    assert(items.length === registries.length, `only ${items.length} registries had a search result to look up`);
+    const from = host.mark();
+    host.send({ type: 'health', items });
+    const answers = await Promise.all(
+      items.map((item) => host.waitFor(from, (m) => m.type === 'health' && m.registry === item.registry, 30000, `${item.registry} health`)),
+    );
+    const report: string[] = [];
+    const problems: string[] = [];
+    for (const [i, answer] of answers.entries()) {
+      const { registry, name } = items[i];
+      const health = answer.health[name];
+      if (answer.failed.length || !health) {
+        problems.push(`${registry} ${name}: ${answer.failed.length ? 'lookup failed' : 'no data'}`);
+        continue;
+      }
+      const popularity = health.downloads ?? health.dependents;
+      if (!(popularity > 0)) {
+        problems.push(`${registry} ${name}: no downloads or dependents`);
+      }
+      for (const field of ['released', 'committed'] as const) {
+        if (health[field] !== undefined && Number.isNaN(Date.parse(health[field]))) {
+          problems.push(`${registry} ${name}: ${field} "${health[field]}" is not a date`);
+        }
+      }
+      if (registry === 'maven' && health.released) {
+        problems.push('maven shows the index release date, which is stale');
+      }
+      const lag = health.releasedVersion && latest[registry] && health.releasedVersion !== latest[registry] ? ` (registry latest ${latest[registry]})` : '';
+      report.push(
+        `${registryFor(registry)?.label} ${name}: ${popularity} ${health.downloads !== undefined ? `downloads/${health.downloadsPeriod}` : 'dependents'}` +
+          `${health.released ? `, ${health.releasedVersion} on ${health.released.slice(0, 10)}${lag}` : ''}` +
+          `${health.committed ? `, push ${health.committed.slice(0, 10)}` : ''}${health.deprecated ? ', DEPRECATED' : ''}${health.archived ? ', ARCHIVED' : ''}`,
+      );
+    }
+    assert(problems.length === 0, problems.join('; '));
+    return report.join(' | ');
+  });
+
+  await check('health for a deprecated, archived package is flagged (npm request)', async () => {
+    const from = host.mark();
+    host.send({ type: 'health', items: [{ registry: 'npm', name: 'request' }] });
+    const msg = await host.waitFor(from, (m) => m.type === 'health' && m.registry === 'npm' && 'request' in m.health, 30000, 'health');
+    const health = msg.health.request;
+    assert(health?.deprecated === true, `request is deprecated on npm, got ${JSON.stringify(health)}`);
+    return `deprecated: ${health.deprecated}, last release ${health.released?.slice(0, 10)}`;
+  });
+
+  await check('unsafe names in a health request are answered, never looked up', async () => {
+    const from = host.mark();
+    host.send({ type: 'health', items: [{ registry: 'npm', name: '--version; rm -rf /' }, { registry: 'nope', name: 'x' }] });
+    const msg = await host.waitFor(from, (m) => m.type === 'health' && m.registry === 'npm', 10000, 'health');
+    assert(msg.health['--version; rm -rf /'] === null, 'the unsafe name did not get a null answer');
+    return 'unsafe name answered with null; unknown registry ignored';
+  });
+
+  await check('"DepCart: Search Packages" opens the sidebar', async () => {
+    const commands = await vscode.commands.getCommands(true);
+    assert(commands.includes('depcart.search'), 'depcart.search command is not registered');
+    await vscode.commands.executeCommand('depcart.search');
+    return 'command registered and runs';
+  });
+
+  await check('manifest: DepCart runs in Restricted Mode (limited), so its activity bar icon always shows', async () => {
+    const trust = ext?.packageJSON?.capabilities?.untrustedWorkspaces;
+    assert(trust?.supported === 'limited', `untrustedWorkspaces.supported is ${JSON.stringify(trust?.supported)}`);
+    assert(trust.restrictedConfigurations?.includes('depcart.aiFallback'), 'depcart.aiFallback is not a restricted setting');
+    return trust.description;
+  });
+}
+
+/** In Restricted Mode DepCart must still show up and search, but never run anything in the folder. */
+async function restrictedChecks(): Promise<void> {
+  const workspace = process.env.DEPCART_TEST_WORKSPACE ?? '';
+  const ext = vscode.extensions.getExtension('djain912.depcart');
+
+  await check('the test window really is in Restricted Mode', async () => {
+    assert(!vscode.workspace.isTrusted, 'the workspace is trusted, so this run proves nothing');
+    return `workspace.isTrusted = ${vscode.workspace.isTrusted}`;
+  });
+
+  await check('DepCart, installed from the .vsix, is enabled and activates in Restricted Mode', async () => {
+    assert(ext, 'djain912.depcart is not available: VS Code disabled it in Restricted Mode, so its activity bar icon is gone');
+    const installedIn = process.env.DEPCART_TEST_EXTENSIONS_DIR;
+    assert(installedIn && path.resolve(ext.extensionPath).startsWith(path.resolve(installedIn)), `not the installed copy: ${ext.extensionPath}`);
+    await ext.activate();
+    assert(ext.isActive, 'extension did not activate');
+    return `installed ${ext.packageJSON.version} at ${path.basename(ext.extensionPath)}`;
+  });
+
+  await check('its sidebar opens from the activity bar in Restricted Mode', async () => {
+    await vscode.commands.executeCommand('workbench.view.extension.depcart');
+    await vscode.commands.executeCommand('depcart.search');
+  });
+
+  await check('the workspace value of depcart.aiFallback is ignored in Restricted Mode', async () => {
+    const value = vscode.workspace.getConfiguration('depcart').get<boolean>('aiFallback');
+    assert(value === true, `got ${value}: the untrusted folder's .vscode/settings.json was applied`);
+    return 'folder sets false, DepCart reads the user value (true)';
+  });
+
+  const host = fakeWebviewView();
+  new PickerViewProvider(ext?.extensionUri ?? vscode.Uri.file(path.resolve(__dirname, '..', '..')), memento()).resolveWebviewView(host.view);
+
+  await check('search works in Restricted Mode', async () => {
+    const from = host.mark();
+    host.send({ type: 'search', query: 'zod', registries: ['npm'], requestId: 1 });
+    const msg = await host.waitFor(from, (m) => m.type === 'searchResults' && m.requestId === 1, 30000, 'search results');
+    assert(!msg.error, `error: ${msg.error}`);
+    assert(msg.results.some((r: Message) => r.name === 'zod'), 'zod not found');
+    return `${msg.results.length} results`;
+  });
+
+  let command = '';
+  await check('install commands are built (and marked Restricted Mode)', async () => {
+    const from = host.mark();
+    host.send({ type: 'selection', items: [{ registry: 'npm', name: 'zod', version: '3.23.8' }] });
+    const msg = await host.waitFor(from, (m) => m.type === 'commands', 10000, 'commands');
+    command = msg.blocks[0]?.command ?? '';
+    assert(command === 'npm install zod@3.23.8', `got: ${command}`);
+    assert(msg.trusted === false, `trusted flag is ${msg.trusted}`);
+    return command;
+  });
+
+  await check('Copy works in Restricted Mode', async () => {
+    const saved = await vscode.env.clipboard.readText();
+    try {
+      host.send({ type: 'copy', registry: 'npm' });
+      const deadline = Date.now() + 5000;
+      let text = '';
+      while (Date.now() < deadline && text !== command) {
+        await new Promise((r) => setTimeout(r, 100));
+        text = await vscode.env.clipboard.readText();
+      }
+      assert(text === command, `clipboard has "${text}"`);
+      return text;
+    } finally {
+      await vscode.env.clipboard.writeText(saved);
+    }
+  });
+
+  await check('Run in terminal runs nothing in Restricted Mode', async () => {
+    const before = vscode.window.terminals.length;
+    host.send({ type: 'run', registry: 'npm' });
+    await new Promise((r) => setTimeout(r, 4000));
+    assert(!vscode.window.terminals.some((t) => t.name.startsWith('DepCart:')), 'a DepCart terminal was opened');
+    assert(vscode.window.terminals.length === before, 'a terminal was opened');
+    assert(!existsSync(path.join(workspace, 'node_modules')), 'node_modules appeared: something was installed');
+    return 'no terminal opened, nothing installed; the user is offered "Manage Workspace Trust" instead';
+  });
+}
+
+export async function run(): Promise<void> {
+  await (process.env.DEPCART_TEST_MODE === 'restricted' ? restrictedChecks() : trustedChecks());
   const report = process.env.DEPCART_TEST_REPORT;
   if (report) {
     await fs.writeFile(

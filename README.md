@@ -8,19 +8,10 @@
   <b>Search 10 package registries from one VS Code sidebar. Pick exact versions. Get one install command per language.</b>
 </p>
 <p align="center">
-  <a href="https://www.producthunt.com/products/depcart?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-depcart" target="_blank" rel="noopener noreferrer">
-    <img
-      src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1261822&theme=light&t=1790658609945"
-      alt="DepCart - No leaving of IDE and switching tabs more for packages. | Product Hunt"
-      width="250"
-      height="54"
-    />
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><img src="https://img.shields.io/visual-studio-marketplace/v/djain912.depcart?label=VS%20Code%20Marketplace&color=007ACC" alt="VS Code Marketplace version"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><img src="https://img.shields.io/visual-studio-marketplace/i/djain912.depcart?label=installs" alt="Marketplace installs"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><img src="https://vsmarketplacebadges.dev/version-short/djain912.depcart.svg?label=VS%20Code%20Marketplace&colorB=007ACC" alt="VS Code Marketplace version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart"><img src="https://vsmarketplacebadges.dev/installs-short/djain912.depcart.svg" alt="Marketplace installs"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=djain912.depcart&ssr=false#review-details"><img src="https://vsmarketplacebadges.dev/rating-short/djain912.depcart.svg" alt="Marketplace rating"></a>
+  <a href="https://www.producthunt.com/products/depcart?utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-depcart"><img src="https://img.shields.io/badge/Product%20Hunt-DepCart-DA552F?logo=producthunt&logoColor=white" alt="DepCart on Product Hunt"></a>
   <a href="https://github.com/Djain912/depcart/releases/latest"><img src="https://img.shields.io/github/v/release/Djain912/depcart?label=release" alt="Latest release"></a>
   <a href="https://github.com/Djain912/depcart/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Djain912/depcart/ci.yml?branch=main&label=tests" alt="Tests"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Djain912/depcart" alt="MIT license"></a>
@@ -51,12 +42,14 @@ Adding dependencies usually means a browser tab per registry: npmjs.com for the 
 
 - **Ten registries, one search box.** npm, PyPI, Go modules, crates.io, Maven Central, NuGet, RubyGems, Packagist, pub.dev and Hex. Toggle languages with one click; the ones your project uses are switched on automatically.
 - **Clean, grouped results.** Results are grouped by language with registry logos, the top 3 per group, and "Show more" when you want the rest. Exact name matches rise to the top.
+- **Package health at a glance.** Every result shows how widely it's used (monthly or all-time downloads, or how many packages depend on it), when it was last released and when its repository last got a commit. Deprecated packages, archived repositories and packages with no release or commit in over 2 years are flagged, so abandoned libraries stand out before you add them. Hover for exact numbers and dates.
 - **Every version, not just the latest.** Pick any published version from a dropdown; stable releases come first so hundreds of nightly builds don't bury them.
 - **One command per language, never mixed.** npm packages and Go modules end up in separate commands, each ready to copy or run.
 - **Every install tool a language offers.** Switch with one click, and DepCart remembers your choice per project.
 - **Knows your project.** `pnpm-lock.yaml` means pnpm, `uv.lock` means uv, `[tool.poetry]` means poetry, a Flutter `pubspec.yaml` means `flutter pub add`, and so on.
 - **Open any package's page.** Click a name to open it on the official registry website.
 - **Run it for you.** "Run in terminal" opens a terminal in your project folder and runs the command.
+- **One click away.** The DepCart icon sits in the Activity Bar, even in Restricted Mode, and **DepCart: Search Packages** in the Command Palette jumps straight to the search box (bind it to a key if you like).
 - **Search that keeps working.** If a registry's own search is slow, down or finds nothing, DepCart falls back to the [ecosyste.ms](https://ecosyste.ms) package index. Optional AI suggestions (through VS Code's language model API, for example GitHub Copilot) help when nothing matches, and every suggestion is checked against the real registry before you see it.
 - **Safe by design.** Package names and versions are validated before they reach a command, so a malicious package name can't inject shell syntax or extra flags.
 
@@ -87,14 +80,14 @@ Adding dependencies usually means a browser tab per registry: npmjs.com for the 
 - **From a .vsix:** download `depcart-<version>.vsix` from the [latest release](https://github.com/Djain912/depcart/releases/latest) (or the [website](https://djain912.github.io/depcart/)), then in VS Code open the Extensions view, click **...** and choose **Install from VSIX...**, or run:
 
   ```bash
-  code --install-extension depcart-0.0.1.vsix
+  code --install-extension depcart-0.0.4.vsix
   ```
 
 ## How to use
 
-1. Click the **DepCart** icon in the Activity Bar.
+1. Click the **DepCart** icon in the Activity Bar (or run **DepCart: Search Packages**).
 2. Type a package name (or part of one). Use the logo toggles to choose which languages to search.
-3. Press **+** next to each package you want. Click a name to check its page first.
+3. Check the health line under each result (downloads, last release, last commit), then press **+** next to each package you want. Click a name to open its page first.
 4. Under **Selected**, pick a version for each package (the latest release is chosen for you).
 5. Under **Install**, pick the tool if you need a different one, then **Copy** or **Run in terminal**.
 
@@ -122,6 +115,7 @@ DepCart checks whether the program a command needs (npm, pnpm, uv, cargo, go, ..
 DepCart has no servers of its own and collects no telemetry.
 
 - **Search text** goes to the registries you have switched on (npm, PyPI, pkg.go.dev and the Go module proxy, crates.io, Maven Central, NuGet, RubyGems, Packagist, pub.dev, Hex) and to [packages.ecosyste.ms](https://packages.ecosyste.ms), the backup search index.
+- **Package health** (downloads, last release, last commit, deprecated and archived flags) comes from the [ecosyste.ms](https://ecosyste.ms) package index: DepCart sends it the names of the results on screen. Answers are kept in memory for 30 minutes. The index updates daily, so a release from the last day may not show yet. Maven Central's release dates aren't shown because the index's are out of date.
 - **AI suggestions** (only when the registries find nothing, or when you click "Ask AI") send your search text to the language model you use in VS Code, such as GitHub Copilot. VS Code asks for your permission the first time. Turn it off with the `depcart.aiFallback` setting.
 - **Python fallback search** may download PyPI's official list of project names once (about 10 MB) and cache it for 7 days in VS Code's extension storage.
 - **Your project files never leave your machine.** DepCart only reads the names and a few config files at the top of your workspace folder to detect languages and tools.
@@ -136,7 +130,7 @@ DepCart has no servers of its own and collects no telemetry.
 ## Requirements
 
 - VS Code 1.90 or newer.
-- A trusted workspace folder (DepCart is disabled in Restricted Mode because it can run install commands).
+- Works in Restricted Mode too: you can search, check package health and copy commands. **Run in terminal** needs a trusted folder, because installing can run the project's own scripts and config.
 - The package manager you choose must be installed for "Run in terminal" to work (for example `pnpm` or `uv`).
 - AI suggestions need a language model extension, such as GitHub Copilot Chat, signed in.
 

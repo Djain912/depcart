@@ -282,6 +282,66 @@ select:focus {
   white-space: nowrap;
 }
 
+/*
+ * Health: downloads · last release · last commit. Items wrap whole, never mid-item. Every item has a
+ * dot before it and the row is pulled left by one dot, so the dot that starts each line is clipped.
+ */
+.meta {
+  overflow: hidden;
+  min-height: 16px;
+  color: var(--vscode-descriptionForeground);
+  font-size: 0.85em;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+.meta-items {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -13px;
+}
+
+.meta-items > span {
+  white-space: nowrap;
+}
+
+.meta-items > span::before {
+  content: '·';
+  display: inline-block;
+  width: 13px;
+  color: var(--vscode-descriptionForeground);
+  font-weight: normal;
+  text-align: center;
+}
+
+.meta .stale,
+.meta .flag.warn {
+  color: var(--vscode-editorWarning-foreground, #cca700);
+}
+
+.meta .flag.bad {
+  color: var(--vscode-errorForeground);
+}
+
+.meta .flag {
+  font-weight: 600;
+}
+
+.meta.pending {
+  display: flex;
+  align-items: center;
+}
+
+.skeleton {
+  width: 55%;
+  max-width: 180px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--vscode-descriptionForeground);
+  opacity: 0.15;
+}
+
 .tag {
   flex-shrink: 0;
   padding: 0 4px;

@@ -20,7 +20,7 @@ git clone https://github.com/Djain912/depcart.git
 cd depcart
 npm install
 npm test            # unit tests
-npm run test:host   # runs the extension inside a real VS Code against the live registries
+npm run test:host   # runs the extension inside a real VS Code against the live registries (trusted, then Restricted Mode)
 ```
 
 Press **F5** in VS Code to open an Extension Development Host with your changes loaded.

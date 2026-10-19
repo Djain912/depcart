@@ -17,7 +17,8 @@
 
   /**
    * @typedef {{ id: string, label: string, title: string, site: string, tools: { id: string, label: string }[] }} RegistryInfo
-   * @typedef {{ registry: string, name: string, version: string, description: string, via?: string }} Result
+   * @typedef {{ downloads?: number, downloadsPeriod?: 'month' | 'total', dependents?: number, released?: string, releasedVersion?: string, committed?: string, repository?: string, stars?: number, deprecated?: boolean, archived?: boolean }} Health
+   * @typedef {{ registry: string, name: string, version: string, description: string, via?: string, health?: Health }} Result
    * @typedef {{ registry: string, name: string, version: string, versions: string[], prereleases?: string[], latest: string, loading?: boolean, error?: string }} Item
    * @typedef {{ registry: string, tool: string, kind: 'command' | 'snippet', command: string, count: number, note?: string, missing?: { program: string, installName: string, alternative?: { id: string, label: string } } }} Block
    */
@@ -51,11 +52,21 @@
   let aiMessage = '';
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let watchdog;
+  /** @type {Map<string, Health | null>} Health by package for this session; null when the index has nothing. */
+  const healthByKey = new Map();
+  /** Packages whose health was asked for; failed lookups are asked for again on the next search. */
+  const healthRequested = new Set();
+  const healthFailed = new Set();
 
   // The extension always answers well within these; they only guard against a host that has gone away.
   const SEARCH_WATCHDOG_MS = 25000;
   const AI_WATCHDOG_MS = 60000;
+  const HEALTH_WATCHDOG_MS = 25000;
   const RESULTS_PER_GROUP = 3;
+  const STALE_DAYS = 730;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const compactNumber = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+  const fullNumber = new Intl.NumberFormat('en');
 
   const info = (/** @type {string} */ id) => registries.find((r) => r.id === id);
   const label = (/** @type {string} */ id) => info(id)?.label ?? id;
@@ -219,6 +230,92 @@
       .sort((a, b) => Number(b.exact) - Number(a.exact) || Number(b.ours) - Number(a.ours) || a.order - b.order);
   }
 
+  const daysSince = (/** @type {string} */ iso) => Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / DAY_MS));
+  const ago = (/** @type {number} */ days) =>
+    days < 1 ? 'today' : days < 30 ? `${days}d ago` : days < 365 ? `${Math.floor(days / 30)}mo ago` : `${Math.floor(days / 365)}y ago`;
+  const longDate = (/** @type {string} */ iso) => new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  const SOURCE = 'Source: ecosyste.ms package index';
+
+  /** Asks the extension for the health of rows about to be shown, once per package. */
+  function requestHealth(/** @type {Result[]} */ rows) {
+    const items = rows
+      .filter((r) => !r.health && !healthByKey.has(keyOf(r)) && !healthRequested.has(keyOf(r)))
+      .map(({ registry, name }) => ({ registry, name }));
+    if (!items.length) return;
+    for (const item of items) healthRequested.add(keyOf(item));
+    vscode.postMessage({ type: 'health', items });
+    // Same guard as searches: if the extension host never answers, stop showing placeholders.
+    setTimeout(() => {
+      const unanswered = items.map(keyOf).filter((key) => !healthByKey.has(key));
+      if (!unanswered.length) return;
+      for (const key of unanswered) {
+        healthByKey.set(key, null);
+        healthFailed.add(key);
+      }
+      renderResults();
+    }, HEALTH_WATCHDOG_MS);
+  }
+
+  /** Downloads (or dependents), last release, last commit, and warnings for deprecated or abandoned packages. */
+  function healthLine(/** @type {Result} */ r) {
+    const key = keyOf(r);
+    const health = r.health ?? healthByKey.get(key);
+    if (health === undefined) {
+      return healthRequested.has(key) ? h('div', { class: 'meta pending', 'aria-hidden': 'true' }, h('span', { class: 'skeleton' })) : null;
+    }
+    if (!health) return null;
+    const released = health.released ? daysSince(health.released) : undefined;
+    const committed = health.committed ? daysSince(health.committed) : undefined;
+    const known = [released, committed].filter((d) => d !== undefined);
+    const stale = known.length > 0 && Math.min(...known) > STALE_DAYS;
+    const staleNote = stale ? '\nNo release or commit in over 2 years: check that it is still maintained.' : '';
+    const parts = [];
+    if (health.deprecated) parts.push(h('span', { class: 'flag bad', title: `Marked as deprecated on the registry.\n${SOURCE}` }, 'deprecated'));
+    if (health.archived) parts.push(h('span', { class: 'flag warn', title: `Its source repository is archived (read-only).\n${SOURCE}` }, 'archived'));
+    if (health.downloads !== undefined) {
+      const month = health.downloadsPeriod === 'month';
+      parts.push(
+        h(
+          'span',
+          { title: `${fullNumber.format(health.downloads)} downloads ${month ? 'in the last month' : 'in total'}\n${SOURCE}` },
+          `${compactNumber.format(health.downloads)}${month ? '/mo' : ' total'}`,
+        ),
+      );
+    } else if (health.dependents !== undefined) {
+      parts.push(
+        h(
+          'span',
+          { title: `${fullNumber.format(health.dependents)} packages on ${info(r.registry)?.site ?? 'the registry'} depend on it\n${SOURCE}` },
+          `${compactNumber.format(health.dependents)} dependents`,
+        ),
+      );
+    }
+    if (health.released && released !== undefined) {
+      const version = health.releasedVersion ? ` ${health.releasedVersion}` : '';
+      parts.push(
+        h(
+          'span',
+          { class: stale ? 'stale' : '', title: `Latest release${version} published ${longDate(health.released)}${staleNote}\n${SOURCE}` },
+          `release ${ago(released)}`,
+        ),
+      );
+    }
+    if (health.committed && committed !== undefined) {
+      const stars = health.stars !== undefined ? ` · ${fullNumber.format(health.stars)} stars` : '';
+      parts.push(
+        h(
+          'span',
+          {
+            class: stale ? 'stale' : '',
+            title: `Last push to ${health.repository ?? 'the source repository'} on ${longDate(health.committed)}${stars}${staleNote}\n${SOURCE}`,
+          },
+          `commit ${ago(committed)}`,
+        ),
+      );
+    }
+    return parts.length ? h('div', { class: 'meta' }, h('div', { class: 'meta-items' }, ...parts)) : null;
+  }
+
   function resultRow(/** @type {Result} */ r) {
     const added = isSelected(r);
     return h(
@@ -243,15 +340,18 @@
         ),
       ),
       r.description && h('div', { class: 'desc', title: r.description }, r.description),
+      healthLine(r),
     );
   }
 
   function renderResults() {
     const groups = groupOrder();
     const single = groups.length === 1;
+    const limitOf = (/** @type {string} */ id, /** @type {Result[]} */ list) => (single || expanded.has(id) ? list.length : RESULTS_PER_GROUP);
+    requestHealth(groups.filter(({ id }) => !folded.has(id)).flatMap(({ id, list }) => list.slice(0, limitOf(id, list))));
     const nodes = groups.map(({ id, list }) => {
       const isOpen = !folded.has(id);
-      const limit = single || expanded.has(id) ? list.length : RESULTS_PER_GROUP;
+      const limit = limitOf(id, list);
       const hidden = list.length - limit;
       return h(
         'section',
@@ -383,7 +483,7 @@
     );
   }
 
-  /** @param {{ blocks: Block[], rejected: {name: string, version: string}[], folder?: string }} msg */
+  /** @param {{ blocks: Block[], rejected: {name: string, version: string}[], folder?: string, trusted?: boolean }} msg */
   function renderCommands(msg) {
     const nodes = msg.blocks.map((b) => {
       const tools = info(b.registry)?.tools ?? [];
@@ -426,13 +526,27 @@
               {
                 class: 'btn secondary',
                 disabled: !msg.folder,
-                title: msg.folder ? `Run in a terminal at ${msg.folder}` : 'Open a folder to run commands',
+                title: !msg.folder
+                  ? 'Open a folder to run commands'
+                  : msg.trusted === false
+                    ? 'Restricted Mode: trust this folder to run commands here'
+                    : `Run in a terminal at ${msg.folder}`,
                 onclick: () => vscode.postMessage({ type: 'run', registry: b.registry }),
               },
               'Run in terminal',
             ),
         ),
-        h('div', { class: 'hint' }, [isSnippet ? 'Paste into your build file' : null, b.note].filter(Boolean).join(' · ')),
+        h(
+          'div',
+          { class: 'hint' },
+          [
+            isSnippet ? 'Paste into your build file' : null,
+            b.note,
+            !isSnippet && msg.folder && msg.trusted === false ? 'Restricted Mode: copy it, or trust the folder to run it' : null,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+        ),
       );
     });
     if (msg.rejected.length) {
@@ -488,6 +602,11 @@
     folded = new Set();
     aiPending = new Set();
     aiMessage = '';
+    for (const key of healthFailed) {
+      healthByKey.delete(key);
+      healthRequested.delete(key);
+    }
+    healthFailed.clear();
     pending = new Set(q.length >= 2 ? targets : []);
     if (pending.size) {
       vscode.postMessage({ type: 'search', query: q, registries: targets, requestId });
@@ -541,6 +660,19 @@
         pending.delete(msg.registry);
         renderStatus();
         renderResults();
+        break;
+      case 'health':
+        for (const [name, health] of Object.entries(msg.health)) healthByKey.set(keyOf({ registry: msg.registry, name }), health);
+        for (const name of msg.failed ?? []) {
+          const key = keyOf({ registry: msg.registry, name });
+          healthByKey.set(key, null);
+          healthFailed.add(key);
+        }
+        renderResults();
+        break;
+      case 'focusSearch':
+        queryInput.focus();
+        queryInput.select();
         break;
       case 'aiAvailability':
         aiAvailable = msg.available;

@@ -2,7 +2,7 @@
   "name": "depcart",
   "displayName": "DepCart: Package Search & Install",
   "description": "Search npm, PyPI, Go, crates.io, Maven, NuGet, RubyGems, Packagist, pub.dev and Hex from one sidebar, pick exact versions, and get one ready-to-run install command per language for the tool your project uses.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "djain912",
   "author": {
     "name": "Djain912",
@@ -55,8 +55,11 @@
   "activationEvents": [],
   "capabilities": {
     "untrustedWorkspaces": {
-      "supported": false,
-      "description": "DepCart reads project files to detect your package manager and can run install commands in the workspace, so it only runs in trusted folders."
+      "supported": "limited",
+      "description": "In Restricted Mode DepCart searches packages and builds install commands for you to copy, but it only runs them in a terminal once you trust the folder.",
+      "restrictedConfigurations": [
+        "depcart.aiFallback"
+      ]
     },
     "virtualWorkspaces": {
       "supported": false,
@@ -83,6 +86,12 @@
       ]
     },
     "commands": [
+      {
+        "command": "depcart.search",
+        "title": "Search Packages",
+        "category": "DepCart",
+        "icon": "$(search)"
+      },
       {
         "command": "depcart.feedback",
         "title": "Send Feedback or Request a Feature",
